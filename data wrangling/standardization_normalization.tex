@@ -1,0 +1,208 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+
+\title{\textbf{Standardization and Normalization}}
+\author{Exam Reference Sheet}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Standardization (Z-Score Normalization)}
+
+\subsection{Definition}
+Standardization transforms data to have a mean of 0 and standard deviation of 1.
+
+\subsection{Formula}
+\begin{equation}
+z = \frac{x - \mu}{\sigma}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $z$ = standardized value (z-score)
+    \item $x$ = original value
+    \item $\mu$ = mean of the data
+    \item $\sigma$ = standard deviation of the data
+\end{itemize}
+
+\subsection{For Sample Data}
+\begin{equation}
+z = \frac{x - \bar{x}}{s}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $\bar{x}$ = sample mean
+    \item $s$ = sample standard deviation
+\end{itemize}
+
+\subsection{Properties}
+\begin{itemize}
+    \item Resulting distribution: $\mu = 0$, $\sigma = 1$
+    \item Range: $(-\infty, +\infty)$
+    \item Preserves the shape of the original distribution
+    \item Useful when features have different units
+\end{itemize}
+
+\subsection{When to Use}
+\begin{itemize}
+    \item Data follows Gaussian (normal) distribution
+    \item Algorithms sensitive to feature scaling (e.g., SVM, KNN, Neural Networks)
+    \item When you want to compare variables with different units
+\end{itemize}
+
+\section{Normalization}
+
+\subsection{Min-Max Normalization (Feature Scaling)}
+
+\subsubsection{Formula}
+\begin{equation}
+x' = \frac{x - x_{\min}}{x_{\max} - x_{\min}}
+\end{equation}
+
+\subsubsection{General Formula (with custom range)}
+\begin{equation}
+x' = a + \frac{(x - x_{\min})(b - a)}{x_{\max} - x_{\min}}
+\end{equation}
+
+where $[a, b]$ is the desired range (commonly $[0, 1]$)
+
+\subsubsection{Properties}
+\begin{itemize}
+    \item Range: $[0, 1]$ (or custom $[a, b]$)
+    \item Preserves relationships between data points
+    \item Sensitive to outliers
+    \item All features scaled to the same range
+\end{itemize}
+
+\subsubsection{When to Use}
+\begin{itemize}
+    \item When you need bounded values (0 to 1)
+    \item Neural networks (especially with sigmoid/tanh activation)
+    \item Image processing
+    \item When data doesn't follow Gaussian distribution
+\end{itemize}
+
+\subsection{Mean Normalization}
+
+\subsubsection{Formula}
+\begin{equation}
+x' = \frac{x - \bar{x}}{x_{\max} - x_{\min}}
+\end{equation}
+
+where $\bar{x}$ is the mean of the data
+
+\subsubsection{Properties}
+\begin{itemize}
+    \item Range: approximately $[-1, 1]$
+    \item Centers data around 0
+    \item Less affected by outliers than standardization
+\end{itemize}
+
+\subsection{Unit Vector Normalization (L2 Normalization)}
+
+\subsubsection{Formula}
+For a vector $\mathbf{x} = [x_1, x_2, \ldots, x_n]$:
+
+\begin{equation}
+x'_i = \frac{x_i}{\|\mathbf{x}\|_2} = \frac{x_i}{\sqrt{\sum_{j=1}^{n} x_j^2}}
+\end{equation}
+
+\subsubsection{Properties}
+\begin{itemize}
+    \item Resulting vector has length (magnitude) of 1
+    \item Preserves direction
+    \item Used in text analysis and cosine similarity
+\end{itemize}
+
+\section{Statistical Formulas}
+
+\subsection{Mean}
+\begin{equation}
+\mu = \frac{1}{n}\sum_{i=1}^{n} x_i \quad \text{or} \quad \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+\end{equation}
+
+\subsection{Variance}
+\begin{equation}
+\sigma^2 = \frac{1}{n}\sum_{i=1}^{n} (x_i - \mu)^2 \quad \text{(population)}
+\end{equation}
+
+\begin{equation}
+s^2 = \frac{1}{n-1}\sum_{i=1}^{n} (x_i - \bar{x})^2 \quad \text{(sample)}
+\end{equation}
+
+\subsection{Standard Deviation}
+\begin{equation}
+\sigma = \sqrt{\frac{1}{n}\sum_{i=1}^{n} (x_i - \mu)^2} \quad \text{(population)}
+\end{equation}
+
+\begin{equation}
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n} (x_i - \bar{x})^2} \quad \text{(sample)}
+\end{equation}
+
+\section{Comparison Table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Method} & \textbf{Range} & \textbf{Formula} \\ 
+\midrule
+Standardization & $(-\infty, +\infty)$ & $z = \frac{x - \mu}{\sigma}$ \\[0.3cm]
+Min-Max Norm. & $[0, 1]$ & $x' = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$ \\[0.3cm]
+Mean Norm. & $\approx [-1, 1]$ & $x' = \frac{x - \bar{x}}{x_{\max} - x_{\min}}$ \\[0.3cm]
+L2 Norm. & $[0, 1]$ per feature & $x'_i = \frac{x_i}{\|\mathbf{x}\|_2}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Example Calculation}
+
+\subsection{Dataset}
+Given data: $X = \{2, 4, 6, 8, 10\}$
+
+\subsection{Calculate Statistics}
+\begin{align}
+\bar{x} &= \frac{2+4+6+8+10}{5} = 6 \\
+s &= \sqrt{\frac{(2-6)^2+(4-6)^2+(6-6)^2+(8-6)^2+(10-6)^2}{5-1}} \\
+&= \sqrt{\frac{16+4+0+4+16}{4}} = \sqrt{10} \approx 3.16
+\end{align}
+
+\subsection{Standardization of $x = 8$}
+\begin{equation}
+z = \frac{8 - 6}{3.16} = \frac{2}{3.16} \approx 0.63
+\end{equation}
+
+\subsection{Min-Max Normalization of $x = 8$}
+\begin{equation}
+x' = \frac{8 - 2}{10 - 2} = \frac{6}{8} = 0.75
+\end{equation}
+
+\section{Key Differences}
+
+\begin{enumerate}
+    \item \textbf{Standardization}: Centers data with mean = 0, assumes normal distribution
+    \item \textbf{Normalization}: Scales to fixed range, makes no distribution assumptions
+    \item \textbf{Outliers}: Standardization is more robust; normalization is sensitive
+    \item \textbf{Use case}: Standardization for ML algorithms; normalization for bounded features
+\end{enumerate}
+
+\section{Important Notes}
+
+\begin{itemize}
+    \item Always apply the same transformation to training and test data
+    \item Compute parameters ($\mu, \sigma, x_{\min}, x_{\max}$) from training data only
+    \item Choose method based on data distribution and algorithm requirements
+    \item Outliers affect both methods differently
+\end{itemize}
+
+\end{document}
