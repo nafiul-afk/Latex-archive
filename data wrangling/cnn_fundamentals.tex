@@ -1,0 +1,685 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{multirow}
+
+\geometry{margin=1in}
+
+\title{\textbf{Convolutional Neural Networks (CNN)}}
+\author{Filtering, ReLU, and Pooling Operations}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction to CNNs}
+
+\subsection{What is a CNN?}
+A Convolutional Neural Network (CNN) is a deep learning architecture designed primarily for processing grid-like data such as images. CNNs use specialized layers that preserve spatial relationships.
+
+\subsection{Key Components}
+\begin{enumerate}
+    \item \textbf{Convolutional Layer (Filtering)}: Extracts features
+    \item \textbf{Activation Function (ReLU)}: Introduces non-linearity
+    \item \textbf{Pooling Layer}: Reduces dimensionality
+    \item \textbf{Fully Connected Layer}: Final classification
+\end{enumerate}
+
+\subsection{CNN Architecture Flow}
+\begin{center}
+Input Image $\rightarrow$ \textbf{Convolution} $\rightarrow$ \textbf{ReLU} $\rightarrow$ \textbf{Pooling} $\rightarrow$ FC Layer $\rightarrow$ Output
+\end{center}
+
+\section{Convolutional Layer (Filtering)}
+
+\subsection{Definition}
+Convolution is a mathematical operation that slides a filter (kernel) over the input image to extract features such as edges, textures, and patterns.
+
+\subsection{Convolution Operation Formula}
+
+For input $I$ and kernel $K$:
+
+\begin{equation}
+\boxed{S(i, j) = (I * K)(i, j) = \sum_{m} \sum_{n} I(i+m, j+n) \cdot K(m, n)}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $S(i, j)$ = output feature map value at position $(i, j)$
+    \item $I(i, j)$ = input image pixel at position $(i, j)$
+    \item $K(m, n)$ = kernel/filter weight at position $(m, n)$
+    \item $*$ = convolution operation (not multiplication)
+\end{itemize}
+
+\subsection{2D Convolution (Detailed)}
+
+For a $3 \times 3$ kernel:
+
+\begin{equation}
+S(i, j) = \sum_{m=0}^{2} \sum_{n=0}^{2} I(i+m, j+n) \cdot K(m, n)
+\end{equation}
+
+Expanded:
+\begin{align}
+S(i, j) = &\; I(i, j) \cdot K(0, 0) + I(i, j+1) \cdot K(0, 1) + I(i, j+2) \cdot K(0, 2) \nonumber \\
+&+ I(i+1, j) \cdot K(1, 0) + I(i+1, j+1) \cdot K(1, 1) + I(i+1, j+2) \cdot K(1, 2) \nonumber \\
+&+ I(i+2, j) \cdot K(2, 0) + I(i+2, j+1) \cdot K(2, 1) + I(i+2, j+2) \cdot K(2, 2)
+\end{align}
+
+\subsection{Output Dimensions}
+
+\subsubsection{Without Padding}
+\begin{equation}
+\boxed{O = \frac{I - K}{S} + 1}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $O$ = output dimension (height or width)
+    \item $I$ = input dimension
+    \item $K$ = kernel size
+    \item $S$ = stride
+\end{itemize}
+
+\subsubsection{With Padding}
+\begin{equation}
+\boxed{O = \frac{I + 2P - K}{S} + 1}
+\end{equation}
+
+where $P$ = padding size
+
+\subsection{Example: Basic Convolution}
+
+\textbf{Input Image (5×5):}
+\[
+\begin{bmatrix}
+1 & 2 & 3 & 0 & 1 \\
+0 & 1 & 2 & 3 & 1 \\
+1 & 0 & 1 & 2 & 3 \\
+2 & 1 & 0 & 1 & 0 \\
+3 & 2 & 1 & 0 & 1
+\end{bmatrix}
+\]
+
+\textbf{Kernel/Filter (3×3):}
+\[
+K = \begin{bmatrix}
+1 & 0 & -1 \\
+1 & 0 & -1 \\
+1 & 0 & -1
+\end{bmatrix}
+\quad \text{(Vertical Edge Detector)}
+\]
+
+\textbf{Calculation for top-left position (0,0):}
+\begin{align}
+S(0, 0) &= 1(1) + 2(0) + 3(-1) + 0(1) + 1(0) + 2(-1) + 1(1) + 0(0) + 1(-1) \nonumber \\
+&= 1 + 0 - 3 + 0 + 0 - 2 + 1 + 0 - 1 \nonumber \\
+&= -4
+\end{align}
+
+\textbf{Output Feature Map (3×3) with stride=1:}
+\[
+\begin{bmatrix}
+-4 & -3 & 0 \\
+-3 & -2 & 1 \\
+0 & 1 & 2
+\end{bmatrix}
+\]
+
+\textbf{Output dimension:} $O = \frac{5 - 3}{1} + 1 = 3$
+
+\subsection{Common Filters/Kernels}
+
+\subsubsection{Vertical Edge Detection}
+\[
+\begin{bmatrix}
+1 & 0 & -1 \\
+1 & 0 & -1 \\
+1 & 0 & -1
+\end{bmatrix}
+\]
+
+\subsubsection{Horizontal Edge Detection}
+\[
+\begin{bmatrix}
+1 & 1 & 1 \\
+0 & 0 & 0 \\
+-1 & -1 & -1
+\end{bmatrix}
+\]
+
+\subsubsection{Sobel Filter (Vertical)}
+\[
+\begin{bmatrix}
+1 & 0 & -1 \\
+2 & 0 & -2 \\
+1 & 0 & -1
+\end{bmatrix}
+\]
+
+\subsubsection{Gaussian Blur (3×3)}
+\[
+\frac{1}{16}\begin{bmatrix}
+1 & 2 & 1 \\
+2 & 4 & 2 \\
+1 & 2 & 1
+\end{bmatrix}
+\]
+
+\subsubsection{Sharpen}
+\[
+\begin{bmatrix}
+0 & -1 & 0 \\
+-1 & 5 & -1 \\
+0 & -1 & 0
+\end{bmatrix}
+\]
+
+\subsection{Key Concepts}
+
+\subsubsection{Stride}
+The number of pixels the filter moves at each step.
+\begin{itemize}
+    \item Stride = 1: Filter moves 1 pixel at a time
+    \item Stride = 2: Filter moves 2 pixels at a time (smaller output)
+\end{itemize}
+
+\subsubsection{Padding}
+Adding zeros around the input to control output size.
+\begin{itemize}
+    \item \textbf{Valid}: No padding (output smaller than input)
+    \item \textbf{Same}: Padding to keep output size = input size
+\end{itemize}
+
+For "same" padding with stride=1:
+\begin{equation}
+P = \frac{K - 1}{2}
+\end{equation}
+
+\subsubsection{Multiple Channels}
+For RGB images (3 channels), the kernel also has 3 channels:
+
+\begin{equation}
+S(i, j) = \sum_{c=0}^{C-1} \sum_{m=0}^{K-1} \sum_{n=0}^{K-1} I(i+m, j+n, c) \cdot K(m, n, c)
+\end{equation}
+
+where $C$ = number of input channels
+
+\subsubsection{Multiple Filters}
+Using $F$ different filters produces $F$ output feature maps (channels).
+
+\subsection{Parameters}
+For a convolutional layer:
+\begin{equation}
+\text{Parameters} = (K \times K \times C_{in} + 1) \times C_{out}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $K$ = kernel size
+    \item $C_{in}$ = input channels
+    \item $C_{out}$ = number of filters (output channels)
+    \item $+1$ accounts for bias
+\end{itemize}
+
+\subsection{Properties}
+\begin{itemize}
+    \item \textbf{Local Connectivity}: Each neuron connects to local region
+    \item \textbf{Parameter Sharing}: Same filter used across entire image
+    \item \textbf{Translation Invariance}: Detects features regardless of position
+    \item \textbf{Fewer Parameters}: Compared to fully connected layers
+\end{itemize}
+
+\section{ReLU Activation Function}
+
+\subsection{Definition}
+ReLU (Rectified Linear Unit) is an activation function that introduces non-linearity into the network by outputting the input if positive, otherwise zero.
+
+\subsection{ReLU Formula}
+
+\begin{equation}
+\boxed{\text{ReLU}(x) = \max(0, x) = \begin{cases}
+x & \text{if } x > 0 \\
+0 & \text{if } x \leq 0
+\end{cases}}
+\end{equation}
+
+\subsection{Element-wise Application}
+For a feature map $F$:
+\begin{equation}
+F'(i, j) = \text{ReLU}(F(i, j)) = \max(0, F(i, j))
+\end{equation}
+
+\subsection{Example}
+
+\textbf{Input (After Convolution):}
+\[
+\begin{bmatrix}
+-4 & -3 & 0 \\
+-3 & -2 & 1 \\
+0 & 1 & 2
+\end{bmatrix}
+\]
+
+\textbf{After ReLU:}
+\[
+\begin{bmatrix}
+0 & 0 & 0 \\
+0 & 0 & 1 \\
+0 & 1 & 2
+\end{bmatrix}
+\]
+
+All negative values become 0, positive values remain unchanged.
+
+\subsection{Derivative}
+
+\begin{equation}
+\frac{d}{dx}\text{ReLU}(x) = \begin{cases}
+1 & \text{if } x > 0 \\
+0 & \text{if } x \leq 0
+\end{cases}
+\end{equation}
+
+Note: Derivative at $x = 0$ is undefined but typically set to 0.
+
+\subsection{Why ReLU?}
+
+\subsubsection{Advantages}
+\begin{itemize}
+    \item \textbf{Computational Efficiency}: Simple max operation
+    \item \textbf{Solves Vanishing Gradient}: Gradient is 1 for positive values
+    \item \textbf{Sparse Activation}: Only some neurons activate (outputs 0)
+    \item \textbf{Better Convergence}: Faster training than sigmoid/tanh
+    \item \textbf{Biological Plausibility}: Similar to neuron activation
+\end{itemize}
+
+\subsubsection{Disadvantages}
+\begin{itemize}
+    \item \textbf{Dying ReLU Problem}: Neurons can become inactive (always output 0)
+    \item \textbf{Not Zero-Centered}: Output is always non-negative
+    \item \textbf{Unbounded}: No upper limit on activation
+\end{itemize}
+
+\subsection{ReLU Variants}
+
+\subsubsection{Leaky ReLU}
+\begin{equation}
+\text{Leaky ReLU}(x) = \begin{cases}
+x & \text{if } x > 0 \\
+\alpha x & \text{if } x \leq 0
+\end{cases}
+\end{equation}
+where $\alpha$ is a small constant (e.g., 0.01)
+
+\subsubsection{Parametric ReLU (PReLU)}
+\begin{equation}
+\text{PReLU}(x) = \begin{cases}
+x & \text{if } x > 0 \\
+\alpha x & \text{if } x \leq 0
+\end{cases}
+\end{equation}
+where $\alpha$ is learned during training
+
+\subsubsection{ELU (Exponential Linear Unit)}
+\begin{equation}
+\text{ELU}(x) = \begin{cases}
+x & \text{if } x > 0 \\
+\alpha(e^x - 1) & \text{if } x \leq 0
+\end{cases}
+\end{equation}
+
+\subsection{Comparison with Other Activations}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Function} & \textbf{Formula} & \textbf{Range} & \textbf{Gradient} \\
+\hline
+ReLU & $\max(0, x)$ & $[0, \infty)$ & Fast \\
+\hline
+Sigmoid & $\frac{1}{1+e^{-x}}$ & $(0, 1)$ & Slow (vanishing) \\
+\hline
+Tanh & $\frac{e^x - e^{-x}}{e^x + e^{-x}}$ & $(-1, 1)$ & Slow (vanishing) \\
+\hline
+Leaky ReLU & $\max(\alpha x, x)$ & $(-\infty, \infty)$ & Fast \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Pooling Layer (MaxPooling)}
+
+\subsection{Definition}
+Pooling is a down-sampling operation that reduces the spatial dimensions (height and width) of the feature map while retaining important information.
+
+\subsection{Purpose}
+\begin{itemize}
+    \item Reduce computational cost
+    \item Reduce number of parameters
+    \item Control overfitting
+    \item Achieve translation invariance
+    \item Extract dominant features
+\end{itemize}
+
+\subsection{Max Pooling}
+
+\subsubsection{Definition}
+Max pooling takes the maximum value from each pooling window.
+
+\subsubsection{Formula}
+For pooling window $W$ of size $P \times P$:
+
+\begin{equation}
+\boxed{\text{MaxPool}(i, j) = \max_{m, n \in W} F(i \cdot S + m, j \cdot S + n)}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $F$ = input feature map
+    \item $P$ = pool size (e.g., 2×2)
+    \item $S$ = stride
+    \item $(i, j)$ = position in output
+\end{itemize}
+
+\subsubsection{Output Dimensions}
+\begin{equation}
+\boxed{O = \frac{I - P}{S} + 1}
+\end{equation}
+
+For typical case (pool size = stride):
+\begin{equation}
+O = \frac{I}{P}
+\end{equation}
+
+\subsection{Example: Max Pooling 2×2}
+
+\textbf{Input Feature Map (4×4):}
+\[
+\begin{bmatrix}
+1 & 3 & 2 & 4 \\
+5 & 6 & 1 & 3 \\
+2 & 1 & 4 & 7 \\
+3 & 2 & 5 & 6
+\end{bmatrix}
+\]
+
+\textbf{Max Pooling (2×2, stride=2):}
+
+\textbf{Step 1: Top-left 2×2 window}
+\[
+\begin{bmatrix}
+1 & 3 \\
+5 & 6
+\end{bmatrix}
+\rightarrow \max = 6
+\]
+
+\textbf{Step 2: Top-right 2×2 window}
+\[
+\begin{bmatrix}
+2 & 4 \\
+1 & 3
+\end{bmatrix}
+\rightarrow \max = 4
+\]
+
+\textbf{Step 3: Bottom-left 2×2 window}
+\[
+\begin{bmatrix}
+2 & 1 \\
+3 & 2
+\end{bmatrix}
+\rightarrow \max = 3
+\]
+
+\textbf{Step 4: Bottom-right 2×2 window}
+\[
+\begin{bmatrix}
+4 & 7 \\
+5 & 6
+\end{bmatrix}
+\rightarrow \max = 7
+\]
+
+\textbf{Output After Max Pooling (2×2):}
+\[
+\begin{bmatrix}
+6 & 4 \\
+3 & 7
+\end{bmatrix}
+\]
+
+\textbf{Size Reduction:} $4 \times 4 \rightarrow 2 \times 2$ (75\% reduction)
+
+\subsection{Example: Max Pooling 3×3}
+
+\textbf{Input (6×6):}
+\[
+\begin{bmatrix}
+1 & 2 & 3 & 4 & 5 & 6 \\
+7 & 8 & 9 & 1 & 2 & 3 \\
+4 & 5 & 6 & 7 & 8 & 9 \\
+1 & 2 & 3 & 4 & 5 & 6 \\
+7 & 8 & 9 & 1 & 2 & 3 \\
+4 & 5 & 6 & 7 & 8 & 9
+\end{bmatrix}
+\]
+
+\textbf{Max Pooling (3×3, stride=3):}
+
+Top-left 3×3 region: $\max\{1,2,3,7,8,9,4,5,6\} = 9$
+
+\textbf{Output (2×2):}
+\[
+\begin{bmatrix}
+9 & 9 \\
+9 & 9
+\end{bmatrix}
+\]
+
+\subsection{Other Pooling Types}
+
+\subsubsection{Average Pooling}
+\begin{equation}
+\text{AvgPool}(i, j) = \frac{1}{P^2} \sum_{m, n \in W} F(i \cdot S + m, j \cdot S + n)
+\end{equation}
+
+Takes the average of values in the pooling window.
+
+\textbf{Example (2×2):}
+\[
+\begin{bmatrix}
+1 & 3 \\
+5 & 6
+\end{bmatrix}
+\rightarrow \text{Average} = \frac{1+3+5+6}{4} = 3.75
+\]
+
+\subsubsection{Global Average Pooling}
+Average over entire feature map (one value per channel):
+\begin{equation}
+\text{GAP} = \frac{1}{H \times W} \sum_{i=1}^{H} \sum_{j=1}^{W} F(i, j)
+\end{equation}
+
+Often used before final classification layer.
+
+\subsubsection{Global Max Pooling}
+\begin{equation}
+\text{GMP} = \max_{i, j} F(i, j)
+\end{equation}
+
+\subsection{Properties of Max Pooling}
+
+\begin{itemize}
+    \item \textbf{No Learnable Parameters}: Fixed operation
+    \item \textbf{Translation Invariance}: Small shifts don't change max
+    \item \textbf{Preserves Important Features}: Keeps strongest activations
+    \item \textbf{Down-sampling}: Reduces spatial dimensions
+    \item \textbf{Independent per Channel}: Applied separately to each channel
+\end{itemize}
+
+\subsection{Max Pooling vs Average Pooling}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{Max Pooling} & \textbf{Average Pooling} \\
+\hline
+Operation & Takes maximum value & Takes average value \\
+\hline
+Feature Retention & Preserves strongest features & Smooths features \\
+\hline
+Use Case & Sharp features, edges & Smooth features, background \\
+\hline
+Gradient Flow & Sparse (only max position) & Distributed equally \\
+\hline
+Popularity & More common in CNNs & Less common \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Complete CNN Example}
+
+\subsection{Input to Output Flow}
+
+\textbf{Input Image (5×5, grayscale):}
+\[
+\begin{bmatrix}
+1 & 2 & 3 & 0 & 1 \\
+0 & 1 & 2 & 3 & 1 \\
+1 & 0 & 1 & 2 & 3 \\
+2 & 1 & 0 & 1 & 0 \\
+3 & 2 & 1 & 0 & 1
+\end{bmatrix}
+\]
+
+\textbf{Step 1: Convolution (3×3 kernel, stride=1)}
+
+Using vertical edge detector:
+\[
+K = \begin{bmatrix}
+1 & 0 & -1 \\
+1 & 0 & -1 \\
+1 & 0 & -1
+\end{bmatrix}
+\]
+
+Output (3×3):
+\[
+\begin{bmatrix}
+-4 & -3 & 0 \\
+-3 & -2 & 1 \\
+0 & 1 & 2
+\end{bmatrix}
+\]
+
+\textbf{Step 2: ReLU Activation}
+
+Apply ReLU element-wise:
+\[
+\begin{bmatrix}
+0 & 0 & 0 \\
+0 & 0 & 1 \\
+0 & 1 & 2
+\end{bmatrix}
+\]
+
+\textbf{Step 3: Max Pooling (2×2, stride=2)}
+
+Since output is 3×3, we can do pooling with stride=1:
+
+Top-left 2×2: $\max\{0, 0, 0, 0\} = 0$
+
+Top-right 2×2: $\max\{0, 0, 0, 1\} = 1$
+
+Bottom-left 2×2: $\max\{0, 0, 0, 1\} = 1$
+
+Bottom-right 2×2: $\max\{0, 1, 1, 2\} = 2$
+
+\textbf{Final Output (2×2):}
+\[
+\begin{bmatrix}
+0 & 1 \\
+1 & 2
+\end{bmatrix}
+\]
+
+\subsection{Dimension Tracking}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Layer} & \textbf{Output Dimensions} \\
+\hline
+Input & $5 \times 5 \times 1$ \\
+\hline
+Conv (3×3, stride=1) & $3 \times 3 \times 1$ \\
+\hline
+ReLU & $3 \times 3 \times 1$ (no change) \\
+\hline
+MaxPool (2×2, stride=1) & $2 \times 2 \times 1$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Key Formulas Summary}
+
+\subsection{Convolution}
+\begin{equation}
+S(i, j) = \sum_{m} \sum_{n} I(i+m, j+n) \cdot K(m, n)
+\end{equation}
+
+\begin{equation}
+\text{Output Size} = \frac{I + 2P - K}{S} + 1
+\end{equation}
+
+\subsection{ReLU}
+\begin{equation}
+\text{ReLU}(x) = \max(0, x)
+\end{equation}
+
+\subsection{Max Pooling}
+\begin{equation}
+\text{MaxPool}(i, j) = \max_{m, n \in W} F(i \cdot S + m, j \cdot S + n)
+\end{equation}
+
+\begin{equation}
+\text{Output Size} = \frac{I - P}{S} + 1
+\end{equation}
+
+\section{Practical Tips}
+
+\subsection{Common Configurations}
+\begin{itemize}
+    \item \textbf{Kernel Size}: 3×3 or 5×5 (3×3 most common)
+    \item \textbf{Stride}: 1 for convolution, 2 for pooling
+    \item \textbf{Padding}: "same" to preserve dimensions
+    \item \textbf{Pooling}: 2×2 with stride=2 (reduces by half)
+    \item \textbf{Filters}: Powers of 2 (32, 64, 128, 256, 512)
+\end{itemize}
+
+\subsection{Design Principles}
+\begin{enumerate}
+    \item Start with small filters (3×3)
+    \item Increase filter count as you go deeper
+    \item Use pooling to reduce spatial dimensions
+    \item Always apply ReLU after convolution
+    \item Use batch normalization for stability
+\end{enumerate}
+
+\end{document}
