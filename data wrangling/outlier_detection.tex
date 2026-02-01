@@ -1,0 +1,416 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\geometry{margin=1in}
+
+\title{\textbf{Outlier Detection Methods}}
+\author{IQR, Z-Score, and Isolation Forest}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction to Outliers}
+
+\subsection{Definition}
+An \textbf{outlier} is a data point that differs significantly from other observations. It may indicate:
+\begin{itemize}
+    \item Measurement or experimental error
+    \item Data entry error
+    \item True but rare events
+    \item Natural variability in the data
+\end{itemize}
+
+\subsection{Types of Outliers}
+\begin{enumerate}
+    \item \textbf{Point/Global Outliers}: Single data points far from the rest
+    \item \textbf{Contextual Outliers}: Outliers in specific context (e.g., temperature)
+    \item \textbf{Collective Outliers}: Collection of points that are outliers together
+\end{enumerate}
+
+\section{Method 1: Interquartile Range (IQR)}
+
+\subsection{Definition}
+The IQR is a measure of statistical dispersion based on dividing a dataset into quartiles.
+
+\subsection{Quartiles}
+\begin{itemize}
+    \item \textbf{Q1 (First Quartile)}: 25th percentile - 25\% of data below this value
+    \item \textbf{Q2 (Second Quartile)}: 50th percentile - the median
+    \item \textbf{Q3 (Third Quartile)}: 75th percentile - 75\% of data below this value
+\end{itemize}
+
+\subsection{IQR Formula}
+\begin{equation}
+\text{IQR} = Q3 - Q1
+\end{equation}
+
+\subsection{Outlier Detection Formula}
+A data point $x$ is considered an outlier if:
+
+\begin{equation}
+x < Q1 - 1.5 \times \text{IQR} \quad \text{(Lower outlier)}
+\end{equation}
+
+\begin{equation}
+x > Q3 + 1.5 \times \text{IQR} \quad \text{(Upper outlier)}
+\end{equation}
+
+\subsection{Boundary Formulas}
+\begin{align}
+\text{Lower Bound} &= Q1 - 1.5 \times \text{IQR} \\
+\text{Upper Bound} &= Q3 + 1.5 \times \text{IQR}
+\end{align}
+
+\subsection{Extreme Outliers (Optional)}
+For more extreme outliers, use factor of 3 instead of 1.5:
+\begin{align}
+\text{Lower Extreme Bound} &= Q1 - 3 \times \text{IQR} \\
+\text{Upper Extreme Bound} &= Q3 + 3 \times \text{IQR}
+\end{align}
+
+\subsection{Properties}
+\begin{itemize}
+    \item \textbf{Pros}:
+    \begin{itemize}
+        \item Not affected by extreme values
+        \item Simple to calculate and interpret
+        \item No assumptions about data distribution
+        \item Works well for skewed distributions
+    \end{itemize}
+    \item \textbf{Cons}:
+    \begin{itemize}
+        \item Only works for univariate data
+        \item May not detect outliers in multivariate data
+        \item Fixed threshold (1.5) may not suit all datasets
+    \end{itemize}
+\end{itemize}
+
+\subsection{Example Calculation}
+
+\textbf{Dataset}: $\{3, 7, 8, 9, 10, 12, 15, 18, 20, 100\}$
+
+\textbf{Step 1}: Order the data (already ordered)
+
+\textbf{Step 2}: Calculate quartiles
+\begin{align}
+Q1 &= 8 \quad \text{(25th percentile)} \\
+Q2 &= 11 \quad \text{(median)} \\
+Q3 &= 18 \quad \text{(75th percentile)}
+\end{align}
+
+\textbf{Step 3}: Calculate IQR
+\begin{equation}
+\text{IQR} = Q3 - Q1 = 18 - 8 = 10
+\end{equation}
+
+\textbf{Step 4}: Calculate bounds
+\begin{align}
+\text{Lower Bound} &= Q1 - 1.5 \times \text{IQR} = 8 - 1.5(10) = -7 \\
+\text{Upper Bound} &= Q3 + 1.5 \times \text{IQR} = 18 + 1.5(10) = 33
+\end{align}
+
+\textbf{Step 5}: Identify outliers
+
+No value $< -7$, but $100 > 33$, so \textbf{100 is an outlier}.
+
+\section{Method 2: Z-Score Method}
+
+\subsection{Definition}
+The Z-score measures how many standard deviations a data point is from the mean.
+
+\subsection{Z-Score Formula}
+\begin{equation}
+z = \frac{x - \mu}{\sigma}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $z$ = Z-score
+    \item $x$ = individual data point
+    \item $\mu$ = mean of the dataset
+    \item $\sigma$ = standard deviation of the dataset
+\end{itemize}
+
+\subsection{For Sample Data}
+\begin{equation}
+z = \frac{x - \bar{x}}{s}
+\end{equation}
+
+where $\bar{x}$ is sample mean and $s$ is sample standard deviation.
+
+\subsection{Outlier Detection Rule}
+A data point is considered an outlier if:
+
+\begin{equation}
+|z| > \text{threshold}
+\end{equation}
+
+Common thresholds:
+\begin{itemize}
+    \item $|z| > 2$: Moderate outlier (captures ~95\% of data)
+    \item $|z| > 2.5$: Common threshold
+    \item $|z| > 3$: Extreme outlier (captures ~99.7\% of data)
+\end{itemize}
+
+\subsection{Statistical Formulas}
+
+\subsubsection{Mean}
+\begin{equation}
+\mu = \frac{1}{n}\sum_{i=1}^{n} x_i \quad \text{or} \quad \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+\end{equation}
+
+\subsubsection{Standard Deviation}
+\begin{equation}
+\sigma = \sqrt{\frac{1}{n}\sum_{i=1}^{n} (x_i - \mu)^2} \quad \text{(population)}
+\end{equation}
+
+\begin{equation}
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n} (x_i - \bar{x})^2} \quad \text{(sample)}
+\end{equation}
+
+\subsection{Properties}
+\begin{itemize}
+    \item \textbf{Pros}:
+    \begin{itemize}
+        \item Simple and intuitive
+        \item Works well for normally distributed data
+        \item Provides degree of "outlierness"
+        \item Easy to implement
+    \end{itemize}
+    \item \textbf{Cons}:
+    \begin{itemize}
+        \item Assumes normal distribution
+        \item Sensitive to outliers (mean and SD affected by outliers)
+        \item Not suitable for skewed distributions
+        \item Only for univariate data
+    \end{itemize}
+\end{itemize}
+
+\subsection{Example Calculation}
+
+\textbf{Dataset}: $\{10, 12, 14, 15, 16, 18, 20, 100\}$
+
+\textbf{Step 1}: Calculate mean
+\begin{equation}
+\bar{x} = \frac{10+12+14+15+16+18+20+100}{8} = \frac{205}{8} = 25.625
+\end{equation}
+
+\textbf{Step 2}: Calculate standard deviation
+\begin{align}
+s &= \sqrt{\frac{\sum(x_i - \bar{x})^2}{n-1}} \\
+&= \sqrt{\frac{(10-25.625)^2 + \cdots + (100-25.625)^2}{7}} \\
+&\approx 29.85
+\end{align}
+
+\textbf{Step 3}: Calculate Z-scores
+\begin{align}
+z_{100} &= \frac{100 - 25.625}{29.85} \approx 2.49 \\
+z_{10} &= \frac{10 - 25.625}{29.85} \approx -0.52
+\end{align}
+
+\textbf{Step 4}: Identify outliers (using threshold $|z| > 2.5$)
+
+Value 100 has $|z| \approx 2.49$, which is close to threshold but may or may not be considered an outlier depending on the exact threshold used.
+
+\section{Method 3: Isolation Forest}
+
+\subsection{Definition}
+Isolation Forest is a machine learning algorithm that isolates anomalies by randomly selecting features and split values. It's based on the principle that outliers are:
+\begin{itemize}
+    \item Few in number
+    \item Have attribute values very different from normal instances
+\end{itemize}
+
+\subsection{Key Concept}
+Outliers are easier to isolate (require fewer splits) than normal points.
+
+\subsection{Algorithm Steps}
+
+\subsubsection{Training Phase}
+\begin{enumerate}
+    \item Randomly select a feature
+    \item Randomly select a split value between min and max of that feature
+    \item Recursively partition data until:
+    \begin{itemize}
+        \item Tree reaches maximum depth, or
+        \item Node contains only one instance, or
+        \item All instances have same values
+    \end{itemize}
+    \item Repeat to create multiple isolation trees (forest)
+\end{enumerate}
+
+\subsubsection{Scoring Phase}
+For each data point, calculate the \textbf{path length} $h(x)$:
+\begin{itemize}
+    \item Number of splits required to isolate the point
+    \item Average across all trees in the forest
+\end{itemize}
+
+\subsection{Anomaly Score Formula}
+
+\subsubsection{Average Path Length}
+\begin{equation}
+E(h(x)) = \text{average path length across all trees}
+\end{equation}
+
+\subsubsection{Normalization Factor}
+For a dataset of size $n$, the average path length of unsuccessful search in BST:
+\begin{equation}
+c(n) = 2H(n-1) - \frac{2(n-1)}{n}
+\end{equation}
+
+where $H(i)$ is the harmonic number: $H(i) = \ln(i) + 0.5772156649$ (Euler's constant)
+
+\subsubsection{Anomaly Score}
+\begin{equation}
+s(x, n) = 2^{-\frac{E(h(x))}{c(n)}}
+\end{equation}
+
+\subsection{Score Interpretation}
+\begin{itemize}
+    \item $s \approx 1$: Anomaly (outlier)
+    \item $s < 0.5$: Normal instance
+    \item $s \approx 0.5$: No clear distinction
+\end{itemize}
+
+Common threshold: $s > 0.6$ for outliers
+
+\subsection{Parameters}
+\begin{itemize}
+    \item \textbf{n\_estimators}: Number of trees in forest (default: 100)
+    \item \textbf{max\_samples}: Number of samples to train each tree (default: 256)
+    \item \textbf{contamination}: Expected proportion of outliers (default: 0.1)
+    \item \textbf{max\_features}: Number of features to consider for split (default: 1.0)
+\end{itemize}
+
+\subsection{Properties}
+\begin{itemize}
+    \item \textbf{Pros}:
+    \begin{itemize}
+        \item Works with multivariate data
+        \item No assumption about data distribution
+        \item Fast and efficient (linear time complexity)
+        \item Handles high-dimensional data well
+        \item Not affected by normal instances
+        \item Can detect global and local outliers
+    \end{itemize}
+    \item \textbf{Cons}:
+    \begin{itemize}
+        \item Less interpretable than IQR or Z-score
+        \item Randomness may give different results
+        \item May struggle with datasets where anomalies form clusters
+        \item Requires tuning of contamination parameter
+    \end{itemize}
+\end{itemize}
+
+\subsection{Simplified Example}
+
+Consider a 2D dataset where outliers are far from the dense cluster:
+
+\textbf{Path Length Comparison}:
+\begin{itemize}
+    \item Normal point in dense region: Requires 8-10 splits to isolate
+    \item Outlier point far from cluster: Requires 2-3 splits to isolate
+\end{itemize}
+
+Since outliers have shorter path lengths, they receive higher anomaly scores.
+
+\section{Comparison of Methods}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{2.5cm}p{3.5cm}p{3.5cm}p{3.5cm}@{}}
+\toprule
+\textbf{Aspect} & \textbf{IQR} & \textbf{Z-Score} & \textbf{Isolation Forest} \\ 
+\midrule
+\textbf{Type} & Statistical & Statistical & Machine Learning \\[0.2cm]
+\textbf{Distribution} & No assumption & Assumes normal & No assumption \\[0.2cm]
+\textbf{Dimensions} & Univariate & Univariate & Multivariate \\[0.2cm]
+\textbf{Complexity} & O(n log n) & O(n) & O(n log n) \\[0.2cm]
+\textbf{Sensitivity} & Robust & Sensitive & Robust \\[0.2cm]
+\textbf{Threshold} & Fixed (1.5) & Flexible (2-3) & Score-based \\[0.2cm]
+\textbf{Interpretability} & High & High & Medium \\[0.2cm]
+\textbf{Best for} & Skewed data & Normal data & High-dim data \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{When to Use Each Method}
+
+\subsection{Use IQR when:}
+\begin{itemize}
+    \item Data is skewed or non-normal
+    \item Working with univariate data
+    \item Need simple, interpretable results
+    \item Want a robust method (not affected by outliers)
+\end{itemize}
+
+\subsection{Use Z-Score when:}
+\begin{itemize}
+    \item Data is approximately normally distributed
+    \item Working with univariate data
+    \item Need to know "how extreme" a value is
+    \item Have small datasets
+\end{itemize}
+
+\subsection{Use Isolation Forest when:}
+\begin{itemize}
+    \item Working with multivariate/high-dimensional data
+    \item Data distribution is unknown or complex
+    \item Need to detect complex patterns
+    \item Have large datasets
+    \item Outliers don't follow a simple pattern
+\end{itemize}
+
+\section{Combined Example}
+
+\textbf{Dataset}: $\{5, 7, 8, 9, 10, 11, 12, 13, 15, 50\}$
+
+\subsection{IQR Method}
+\begin{align}
+Q1 &= 8.5, \quad Q3 = 12.5 \\
+\text{IQR} &= 4 \\
+\text{Lower Bound} &= 8.5 - 1.5(4) = 2.5 \\
+\text{Upper Bound} &= 12.5 + 1.5(4) = 18.5 \\
+\text{Outlier} &: 50 > 18.5 \quad \checkmark
+\end{align}
+
+\subsection{Z-Score Method}
+\begin{align}
+\bar{x} &= 14 \\
+s &\approx 12.65 \\
+z_{50} &= \frac{50-14}{12.65} \approx 2.85 \\
+\text{Outlier} &: |z| > 2.5 \quad \checkmark
+\end{align}
+
+\subsection{Isolation Forest}
+Would build trees and calculate anomaly score for value 50, likely resulting in $s > 0.6$ (outlier).
+
+\section{Important Formulas Summary}
+
+\subsection{IQR}
+\begin{equation}
+\boxed{\text{Outlier if: } x < Q1 - 1.5 \times \text{IQR} \text{ or } x > Q3 + 1.5 \times \text{IQR}}
+\end{equation}
+
+\subsection{Z-Score}
+\begin{equation}
+\boxed{z = \frac{x - \mu}{\sigma}, \quad \text{Outlier if: } |z| > \text{threshold (typically 2.5 or 3)}}
+\end{equation}
+
+\subsection{Isolation Forest}
+\begin{equation}
+\boxed{s(x, n) = 2^{-\frac{E(h(x))}{c(n)}}, \quad \text{Outlier if: } s > 0.6}
+\end{equation}
+
+\end{document}
