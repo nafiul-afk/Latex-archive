@@ -1,0 +1,170 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{lmodern}
+
+\begin{document}
+
+\begin{center}
+{\LARGE \textbf{Linked List Problem Set}}
+\end{center}
+
+\bigskip
+
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=0.6in]
+
+%------------------ 1 ------------------
+\item \textbf{Print the size of a linked list.}
+
+\textbf{Input:}
+\[
+34 \rightarrow 12 \rightarrow 55 \rightarrow 42 \rightarrow 11
+\]
+\textbf{Output:}
+\[
+5
+\]
+
+%------------------ 2 ------------------
+\item \textbf{Given the head of a linked list, print the value of the middle node.}
+
+\textbf{Input:}
+\[
+34 \rightarrow 12 \rightarrow 55 \rightarrow 42 \rightarrow 11
+\]
+\textbf{Output:}
+\[
+55
+\]
+
+\textbf{Input:}
+\[
+12 \rightarrow 8 \rightarrow 65 \rightarrow 10
+\]
+\textbf{Output:}
+\[
+8
+\]
+
+%------------------ 3 ------------------
+\item \textbf{Print the number of occurrences of a given number in a linked list.}
+
+\textbf{Input:}
+\[
+1 \rightarrow 2 \rightarrow 1 \rightarrow 2 \rightarrow 1 \rightarrow 3 \rightarrow 1,
+\quad \text{num} = 1
+\]
+\textbf{Output:}
+\[
+4
+\]
+
+%------------------ 4 ------------------
+\item \textbf{Given a sorted linked list, insert a number so that after insertion, it remains sorted.}
+
+\textbf{Input:}
+\[
+1 \rightarrow 4 \rightarrow 6 \rightarrow 7 \rightarrow 9 \rightarrow 11,
+\quad \text{num} = 3
+\]
+\textbf{Output:}
+\[
+1 \rightarrow 3 \rightarrow 4 \rightarrow 6 \rightarrow 7 \rightarrow 9 \rightarrow 11
+\]
+
+%------------------ 5 ------------------
+\item \textbf{Delete all the even numbers from a linked list.}
+
+\textbf{Input:}
+\[
+1 \rightarrow 4 \rightarrow 6 \rightarrow 7 \rightarrow 9 \rightarrow 11
+\]
+\textbf{Output:}
+\[
+1 \rightarrow 7 \rightarrow 9 \rightarrow 11
+\]
+
+%------------------ 6 ------------------
+\item \textbf{Reverse a doubly linked list.}
+
+\textbf{Input:}
+\[
+7 \leftrightarrow 12 \leftrightarrow 8 \leftrightarrow 65 \leftrightarrow 10
+\]
+\textbf{Output:}
+\[
+10 \leftrightarrow 65 \leftrightarrow 8 \leftrightarrow 12 \leftrightarrow 7
+\]
+
+%------------------ 7 ------------------
+\item \textbf{Reverse a singly linked list.}
+
+\textbf{Input:}
+\[
+7 \rightarrow 12 \rightarrow 8 \rightarrow 65 \rightarrow 10
+\]
+\textbf{Output:}
+\[
+10 \rightarrow 65 \rightarrow 8 \rightarrow 12 \rightarrow 7
+\]
+
+%------------------ 8 ------------------
+\item \textbf{Given a singly linked list and an integer $k$, rotate the linked list to the left by $k$ places.}
+
+\textbf{Input:}
+\[
+10 \rightarrow 20 \rightarrow 30 \rightarrow 40 \rightarrow 50,
+\quad k = 4
+\]
+\textbf{Output:}
+\[
+50 \rightarrow 10 \rightarrow 20 \rightarrow 30 \rightarrow 40
+\]
+
+%------------------ 9 ------------------
+\item \textbf{Given a singly linked list, print ``YES'' if it is a palindrome otherwise print ``NO''.}
+
+\textbf{Input:}
+\[
+1 \rightarrow 2 \rightarrow 2 \rightarrow 1
+\]
+\textbf{Output:}
+\[
+\text{YES}
+\]
+
+\textbf{Input:}
+\[
+1 \rightarrow 2 \rightarrow 3 \rightarrow 1
+\]
+\textbf{Output:}
+\[
+\text{NO}
+\]
+
+%------------------ 10 ------------------
+\item \textbf{Given the head of a linked list, determine if the linked list has a cycle in it.}
+
+\textbf{Input (cycle exists):}
+\[
+3 \rightarrow 2 \rightarrow 0 \rightarrow 4
+\]
+\textbf{Output:}
+\[
+\text{YES}
+\]
+
+\textbf{Input (no cycle):}
+\[
+3 \rightarrow 2 \rightarrow 0 \rightarrow 4 \rightarrow \text{NULL}
+\]
+\textbf{Output:}
+\[
+\text{NO}
+\]
+
+\end{enumerate}
+
+\end{document}
