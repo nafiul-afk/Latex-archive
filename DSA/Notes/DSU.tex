@@ -1,0 +1,422 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+
+% Code listing settings
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    tabsize=2,
+    showstringspaces=false
+}
+
+\title{\textbf{Disjoint Set Union (DSU)\\Complete Exam Notes}}
+\author{Data Structures \& Algorithms}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!75!black,title=Key Takeaway]
+Always use \textbf{BOTH} path compression AND union by rank/size for optimal $O(\alpha(n))$ complexity!
+\end{tcolorbox}
+
+\section{Introduction \& Purpose}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Also called:} Union-Find, Merge-Find Set
+    \item \textbf{Purpose:} Maintains a collection of disjoint (non-overlapping) sets
+    \item \textbf{Key operations:} 
+        \begin{itemize}
+            \item \texttt{Find}: Identify set representative
+            \item \texttt{Union}: Merge two sets
+        \end{itemize}
+    \item \textbf{Applications:} Kruskal's MST, cycle detection, dynamic connectivity, network connectivity
+\end{itemize}
+
+\section{Basic Structure}
+
+\begin{tcolorbox}[colback=green!5,colframe=green!75!black]
+\textbf{Data Structure:}
+\begin{itemize}
+    \item \texttt{parent[i]} = parent of element $i$
+    \item \texttt{rank[i]} or \texttt{size[i]} = tree height or set size
+\end{itemize}
+
+\textbf{Initialization:} $\texttt{parent[i]} = i$ (each element is its own parent)\\
+\textbf{Representative/Root:} Element where $\texttt{parent[i]} = i$
+\end{tcolorbox}
+
+\section{Core Operations}
+
+\subsection{Find (Find Representative)}
+
+\begin{lstlisting}
+Find(x):
+    if parent[x] == x:
+        return x
+    return Find(parent[x])
+\end{lstlisting}
+
+\begin{itemize}
+    \item Finds root/representative of set containing $x$
+    \item \textbf{Time Complexity:} $O(n)$ worst case without optimization
+\end{itemize}
+
+\subsection{Union (Merge Sets)}
+
+\begin{lstlisting}
+Union(x, y):
+    rootX = Find(x)
+    rootY = Find(y)
+    if rootX != rootY:
+        parent[rootY] = rootX
+\end{lstlisting}
+
+\begin{itemize}
+    \item Merges set containing $x$ with set containing $y$
+    \item \textbf{Time Complexity:} $O(n)$ worst case without optimization
+\end{itemize}
+
+\section{Optimizations}
+
+\subsection{Path Compression (in Find)}
+
+\begin{lstlisting}
+Find(x):
+    if parent[x] != x:
+        parent[x] = Find(parent[x])  // compress path
+    return parent[x]
+\end{lstlisting}
+
+\begin{itemize}
+    \item Makes all nodes point directly to root
+    \item Flattens tree structure
+    \item \textbf{Effect:} Near-constant amortized time
+\end{itemize}
+
+\subsection{Union by Rank}
+
+\begin{lstlisting}
+Union(x, y):
+    rootX, rootY = Find(x), Find(y)
+    if rootX == rootY: 
+        return
+    
+    if rank[rootX] < rank[rootY]:
+        parent[rootX] = rootY
+    else if rank[rootX] > rank[rootY]:
+        parent[rootY] = rootX
+    else:
+        parent[rootY] = rootX
+        rank[rootX]++
+\end{lstlisting}
+
+\begin{itemize}
+    \item Attach smaller tree under larger tree
+    \item Keeps tree height minimal
+    \item Rank = upper bound on tree height
+\end{itemize}
+
+\subsection{Union by Size}
+
+\begin{lstlisting}
+Union(x, y):
+    rootX, rootY = Find(x), Find(y)
+    if rootX == rootY: 
+        return
+    
+    if size[rootX] < size[rootY]:
+        parent[rootX] = rootY
+        size[rootY] += size[rootX]
+    else:
+        parent[rootY] = rootX
+        size[rootX] += size[rootY]
+\end{lstlisting}
+
+\begin{itemize}
+    \item Attach smaller set to larger set
+    \item Easier to track component sizes
+\end{itemize}
+
+\section{Time Complexity}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Operation} & \textbf{No Opt.} & \textbf{Path Comp.} & \textbf{Union by R/S} & \textbf{Both} \\
+\hline
+Find & $O(n)$ & $O(\log n)$ & $O(\log n)$ & $O(\alpha(n))$ \\
+\hline
+Union & $O(n)$ & $O(\log n)$ & $O(\log n)$ & $O(\alpha(n))$ \\
+\hline
+\end{tabular}
+\caption{Time complexities with different optimizations}
+\end{table}
+
+\textbf{Note:} $\alpha(n)$ = Inverse Ackermann function $\approx$ constant ($\leq 4$ for all practical $n$)
+
+\section{Space Complexity}
+
+\begin{itemize}
+    \item $O(n)$ for parent array
+    \item $O(n)$ for rank/size array (if used)
+    \item \textbf{Total: $O(n)$}
+\end{itemize}
+
+\section{Common Operations}
+
+\subsection{Check if Same Set}
+\begin{lstlisting}
+bool connected(x, y):
+    return Find(x) == Find(y)
+\end{lstlisting}
+
+\subsection{Count Components}
+\begin{lstlisting}
+count = 0
+for i in 1 to n:
+    if parent[i] == i:
+        count++
+\end{lstlisting}
+
+\subsection{Get Component Size}
+\begin{lstlisting}
+size[Find(x)]  // if using union by size
+\end{lstlisting}
+
+\section{Complete Implementation Template}
+
+\begin{lstlisting}
+class DSU {
+    vector<int> parent, rank;
+    
+public:
+    DSU(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+        for(int i = 0; i < n; i++)
+            parent[i] = i;
+    }
+    
+    int find(int x) {
+        if(parent[x] != x)
+            parent[x] = find(parent[x]);  // Path compression
+        return parent[x];
+    }
+    
+    void unite(int x, int y) {
+        int px = find(x), py = find(y);
+        if(px == py) return;
+        
+        // Union by rank
+        if(rank[px] < rank[py]) 
+            swap(px, py);
+        parent[py] = px;
+        if(rank[px] == rank[py]) 
+            rank[px]++;
+    }
+    
+    bool connected(int x, int y) {
+        return find(x) == find(y);
+    }
+    
+    int countComponents() {
+        int count = 0;
+        for(int i = 0; i < parent.size(); i++)
+            if(parent[i] == i) count++;
+        return count;
+    }
+};
+\end{lstlisting}
+
+\section{Key Applications}
+
+\subsection{Kruskal's Minimum Spanning Tree}
+\begin{enumerate}
+    \item Sort edges by weight
+    \item For each edge $(u, v)$:
+        \begin{itemize}
+            \item If $\texttt{find}(u) \neq \texttt{find}(v)$: add edge, perform $\texttt{union}(u, v)$
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Cycle Detection in Undirected Graph}
+\begin{itemize}
+    \item For each edge $(u, v)$:
+        \begin{itemize}
+            \item If $\texttt{find}(u) = \texttt{find}(v)$: cycle exists
+            \item Else: perform $\texttt{union}(u, v)$
+        \end{itemize}
+\end{itemize}
+
+\subsection{Dynamic Connectivity}
+\begin{itemize}
+    \item Check if two nodes are connected in a dynamic graph
+    \item Add edges dynamically and query connectivity
+\end{itemize}
+
+\subsection{Other Applications}
+\begin{itemize}
+    \item Network connectivity problems
+    \item Image processing (connected component labeling)
+    \item Least common ancestor (offline)
+    \item Social network analysis
+\end{itemize}
+
+\section{Important Properties}
+
+\begin{itemize}
+    \item \textbf{Disjoint:} Sets never overlap
+    \item \textbf{Representative:} Each set has a unique root
+    \item \textbf{Idempotent Union:} $\texttt{union}(x, x)$ has no effect
+    \item \textbf{Commutative:} $\texttt{union}(x, y) = \texttt{union}(y, x)$
+    \item \textbf{Path Independence:} Find result same regardless of path compression order
+\end{itemize}
+
+\section{Common Pitfalls}
+
+\begin{enumerate}
+    \item \textbf{Initialization:} Forgetting to set $\texttt{parent[i]} = i$
+    \item \textbf{Missing Optimizations:} Not using both path compression and union by rank
+    \item \textbf{Comparison Error:} Comparing elements directly instead of their roots
+    \item \textbf{Redundant Union:} Not checking if already in same set before union
+    \item \textbf{Indexing:} Off-by-one errors in 0-indexed vs 1-indexed arrays
+    \item \textbf{Return Value:} Forgetting to return the compressed parent in Find
+\end{enumerate}
+
+\section{Advanced Variations}
+
+\subsection{Persistent DSU}
+\begin{itemize}
+    \item Maintains history of operations
+    \item Uses path copying instead of compression
+    \item Can query past states
+\end{itemize}
+
+\subsection{Weighted DSU}
+\begin{itemize}
+    \item Maintains distances/relations between elements
+    \item Used in bipartite graph checking
+    \item Stores edge weights or parity information
+\end{itemize}
+
+\subsection{DSU with Rollback}
+\begin{itemize}
+    \item Can undo operations
+    \item Uses stack to track changes
+    \item Useful in offline algorithms
+    \item Cannot use path compression (breaks rollback)
+\end{itemize}
+
+\section{Proof Sketch: Time Complexity}
+
+\textbf{Theorem:} With both path compression and union by rank, the amortized time per operation is $O(\alpha(n))$.
+
+\textbf{Key Ideas:}
+\begin{itemize}
+    \item Union by rank ensures tree height $\leq \log n$
+    \item Path compression flattens trees over time
+    \item Combined effect: trees become very shallow
+    \item Inverse Ackermann function $\alpha(n)$ grows extremely slowly
+    \item For $n \leq 2^{65536}$, $\alpha(n) \leq 4$
+\end{itemize}
+
+\section{Quick Reference}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!75!black,title=Advantages]
+\begin{itemize}
+    \item Simple to implement
+    \item Very fast in practice (almost $O(1)$)
+    \item Space efficient: $O(n)$
+    \item Handles large datasets efficiently
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=red!10,colframe=red!75!black,title=Limitations]
+\begin{itemize}
+    \item Cannot efficiently split sets
+    \item Cannot efficiently remove elements
+    \item Static structure (no deletions)
+    \item Only works for equivalence relations
+\end{itemize}
+\end{tcolorbox}
+
+\section{Example Problem: Number of Islands}
+
+\textbf{Problem:} Given a 2D grid of 1s (land) and 0s (water), count number of islands.
+
+\textbf{DSU Solution:}
+\begin{lstlisting}
+int numIslands(vector<vector<char>>& grid) {
+    int m = grid.size(), n = grid[0].size();
+    DSU dsu(m * n);
+    
+    int dx[] = {0, 1};
+    int dy[] = {1, 0};
+    
+    for(int i = 0; i < m; i++) {
+        for(int j = 0; j < n; j++) {
+            if(grid[i][j] == '1') {
+                for(int k = 0; k < 2; k++) {
+                    int ni = i + dx[k];
+                    int nj = j + dy[k];
+                    if(ni < m && nj < n && grid[ni][nj] == '1') {
+                        dsu.unite(i*n + j, ni*n + nj);
+                    }
+                }
+            }
+        }
+    }
+    
+    int count = 0;
+    for(int i = 0; i < m; i++) {
+        for(int j = 0; j < n; j++) {
+            if(grid[i][j] == '1' && 
+               dsu.find(i*n + j) == i*n + j) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+\end{lstlisting}
+
+\section{Exam Tips}
+
+\begin{enumerate}
+    \item Always implement \textbf{both optimizations} unless specifically asked otherwise
+    \item For Kruskal's algorithm questions, DSU is the standard approach
+    \item Remember to \textbf{initialize} parent array in constructor
+    \item When counting components, count elements where $\texttt{parent[i]} = i$
+    \item Be careful with \textbf{array indexing} (0-based vs 1-based)
+    \item Time complexity with both optimizations: $O(\alpha(n)) \approx O(1)$
+    \item Space complexity is always $O(n)$
+\end{enumerate}
+
+\vfill
+
+\begin{center}
+\textit{Good luck with your exam!}
+\end{center}
+
+\end{document}
