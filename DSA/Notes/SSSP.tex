@@ -1,0 +1,816 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Python code listing settings
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    tabsize=4,
+    showstringspaces=false,
+    morekeywords={self}
+}
+
+\title{\textbf{Single Source Shortest Path (SSSP)\\Dijkstra's \& Bellman-Ford\\Complete Python Exam Notes}}
+\author{Data Structures \& Algorithms}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!75!black,title=Key Concepts]
+\textbf{SSSP:} Find shortest path from source to all other vertices\\
+\textbf{Dijkstra's:} Fast, greedy, works only with non-negative weights\\
+\textbf{Bellman-Ford:} Slower, works with negative weights, detects negative cycles
+\end{tcolorbox}
+
+\section{Single Source Shortest Path - Fundamentals}
+
+\subsection{Problem Definition}
+\begin{itemize}
+    \item \textbf{Input:} Weighted graph $G(V, E)$ and source vertex $s$
+    \item \textbf{Output:} Shortest path distance from $s$ to all vertices
+    \item \textbf{Shortest Path:} Path with minimum sum of edge weights
+    \item Can work on both directed and undirected graphs
+\end{itemize}
+
+\subsection{Key Concepts}
+\begin{itemize}
+    \item \textbf{Distance:} $dist[v]$ = shortest distance from source to $v$
+    \item \textbf{Relaxation:} Update distance if shorter path found
+    \item \textbf{Optimal Substructure:} Shortest path contains shortest subpaths
+    \item \textbf{Triangle Inequality:} $dist[v] \leq dist[u] + weight(u, v)$
+\end{itemize}
+
+\subsection{Relaxation Operation}
+\begin{lstlisting}
+def relax(u, v, weight):
+    """
+    Try to improve shortest path to v through u
+    """
+    if dist[v] > dist[u] + weight:
+        dist[v] = dist[u] + weight
+        parent[v] = u  # For path reconstruction
+        return True  # Distance was updated
+    return False
+\end{lstlisting}
+
+\subsection{Applications}
+\begin{itemize}
+    \item GPS navigation and route planning
+    \item Network routing protocols (OSPF, RIP)
+    \item Social network analysis (degrees of separation)
+    \item Game AI pathfinding
+    \item Flight itinerary planning
+    \item Currency arbitrage detection (with negative weights)
+\end{itemize}
+
+\section{Dijkstra's Algorithm}
+
+\subsection{Core Idea}
+\begin{itemize}
+    \item \textbf{Greedy approach}: Always process closest unvisited vertex
+    \item \textbf{Assumption}: All edge weights are non-negative
+    \item Uses \textbf{priority queue (min-heap)} to get minimum distance vertex
+    \item Once vertex is processed, its distance is final
+    \item Similar to Prim's MST algorithm
+\end{itemize}
+
+\subsection{Algorithm Steps}
+\begin{enumerate}
+    \item Initialize: $dist[source] = 0$, $dist[v] = \infty$ for all other $v$
+    \item Add $(0, source)$ to priority queue
+    \item While priority queue not empty:
+        \begin{itemize}
+            \item Extract vertex $u$ with minimum distance
+            \item If $u$ already visited, skip
+            \item Mark $u$ as visited
+            \item For each neighbor $v$ of $u$:
+                \begin{itemize}
+                    \item Relax edge $(u, v)$
+                    \item If distance updated, add $(dist[v], v)$ to queue
+                \end{itemize}
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Python Implementation (Min-Heap)}
+
+\begin{lstlisting}
+import heapq
+
+def dijkstra(graph, source, n):
+    """
+    graph: adjacency list {u: [(v, weight), ...]}
+    source: starting vertex
+    n: number of vertices
+    Returns: (distances, parent) for path reconstruction
+    """
+    # Initialize distances
+    dist = [float('inf')] * n
+    dist[source] = 0
+    
+    # Parent array for path reconstruction
+    parent = [-1] * n
+    
+    # Visited set
+    visited = [False] * n
+    
+    # Priority queue: (distance, vertex)
+    pq = [(0, source)]
+    
+    while pq:
+        d, u = heapq.heappop(pq)
+        
+        # Skip if already visited
+        if visited[u]:
+            continue
+        
+        visited[u] = True
+        
+        # Relax all edges from u
+        for v, weight in graph.get(u, []):
+            if not visited[v] and dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+                parent[v] = u
+                heapq.heappush(pq, (dist[v], v))
+    
+    return dist, parent
+
+# Example usage
+n = 5
+graph = {
+    0: [(1, 4), (2, 1)],
+    1: [(3, 1)],
+    2: [(1, 2), (3, 5)],
+    3: [(4, 3)],
+    4: []
+}
+distances, parent = dijkstra(graph, 0, n)
+print(f"Distances: {distances}")  # [0, 3, 1, 4, 7]
+\end{lstlisting}
+
+\subsection{Path Reconstruction}
+
+\begin{lstlisting}
+def get_path(parent, source, target):
+    """
+    Reconstruct shortest path from source to target
+    """
+    if parent[target] == -1 and target != source:
+        return []  # No path exists
+    
+    path = []
+    current = target
+    
+    while current != -1:
+        path.append(current)
+        current = parent[current]
+    
+    path.reverse()
+    return path
+
+# Example
+path = get_path(parent, 0, 4)
+print(f"Path from 0 to 4: {path}")  # [0, 2, 1, 3, 4]
+\end{lstlisting}
+
+\subsection{Time Complexity}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Implementation} & \textbf{Time} & \textbf{Best For} \\
+\hline
+Min-Heap (Binary) & $O((V+E) \log V)$ & Sparse graphs \\
+\hline
+Array (Linear Search) & $O(V^2)$ & Dense graphs \\
+\hline
+Fibonacci Heap & $O(E + V \log V)$ & Theoretical best \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Space Complexity:} $O(V)$ for distance array and heap
+
+\subsection{Why Dijkstra Fails with Negative Weights}
+
+\begin{lstlisting}
+# Example where Dijkstra fails
+# Graph: 0 -> 1 (weight 1), 0 -> 2 (weight 2), 2 -> 1 (weight -5)
+# Dijkstra finds 0->1 = 1, but actual shortest is 0->2->1 = -3
+
+# Once vertex is visited, Dijkstra assumes distance is final
+# But negative edge can reduce distance later
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=red!10,colframe=red!75!black,title=CRITICAL]
+\textbf{Dijkstra ONLY works with non-negative edge weights!}\\
+For negative weights, use Bellman-Ford.
+\end{tcolorbox}
+
+\section{Bellman-Ford Algorithm}
+
+\subsection{Core Idea}
+\begin{itemize}
+    \item \textbf{Dynamic Programming approach}: Relax all edges repeatedly
+    \item \textbf{Works with negative weights}
+    \item \textbf{Detects negative cycles}
+    \item Relaxes each edge exactly $V-1$ times
+    \item Slower than Dijkstra but more versatile
+\end{itemize}
+
+\subsection{Why V-1 Iterations?}
+\begin{itemize}
+    \item Shortest path has at most $V-1$ edges (no cycles)
+    \item After $i$ iterations, correct distances for paths with $\leq i$ edges
+    \item After $V-1$ iterations, all shortest paths found
+    \item If distance changes in iteration $V$, negative cycle exists
+\end{itemize}
+
+\subsection{Algorithm Steps}
+\begin{enumerate}
+    \item Initialize: $dist[source] = 0$, $dist[v] = \infty$ for all other $v$
+    \item Repeat $V-1$ times:
+        \begin{itemize}
+            \item For each edge $(u, v, w)$ in the graph:
+                \begin{itemize}
+                    \item Relax: $dist[v] = \min(dist[v], dist[u] + w)$
+                \end{itemize}
+        \end{itemize}
+    \item Check for negative cycles:
+        \begin{itemize}
+            \item For each edge $(u, v, w)$:
+                \begin{itemize}
+                    \item If $dist[v] > dist[u] + w$: negative cycle exists
+                \end{itemize}
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Python Implementation}
+
+\begin{lstlisting}
+def bellman_ford(edges, source, n):
+    """
+    edges: list of [u, v, weight]
+    source: starting vertex
+    n: number of vertices
+    Returns: (distances, has_negative_cycle)
+    """
+    # Initialize distances
+    dist = [float('inf')] * n
+    dist[source] = 0
+    
+    # Parent for path reconstruction
+    parent = [-1] * n
+    
+    # Relax all edges V-1 times
+    for i in range(n - 1):
+        updated = False
+        for u, v, weight in edges:
+            if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+                parent[v] = u
+                updated = True
+        
+        # Early termination if no update
+        if not updated:
+            break
+    
+    # Check for negative cycle
+    has_negative_cycle = False
+    for u, v, weight in edges:
+        if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+            has_negative_cycle = True
+            break
+    
+    return dist, parent, has_negative_cycle
+
+# Example usage
+n = 5
+edges = [
+    [0, 1, 4], [0, 2, 1], [2, 1, 2],
+    [1, 3, 1], [2, 3, 5], [3, 4, 3]
+]
+distances, parent, has_cycle = bellman_ford(edges, 0, n)
+print(f"Distances: {distances}")  # [0, 3, 1, 4, 7]
+print(f"Has negative cycle: {has_cycle}")  # False
+\end{lstlisting}
+
+\subsection{Detecting Negative Cycles}
+
+\begin{lstlisting}
+def detect_negative_cycle(edges, n):
+    """
+    Detect if graph has negative cycle
+    Returns: (has_cycle, cycle_vertices)
+    """
+    dist = [0] * n  # Start with all 0s
+    parent = [-1] * n
+    
+    # Relax V-1 times
+    for _ in range(n - 1):
+        for u, v, weight in edges:
+            if dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+                parent[v] = u
+    
+    # Find vertex in negative cycle
+    cycle_vertex = -1
+    for u, v, weight in edges:
+        if dist[u] + weight < dist[v]:
+            cycle_vertex = v
+            parent[v] = u
+            break
+    
+    if cycle_vertex == -1:
+        return False, []
+    
+    # Trace back to find cycle
+    visited = set()
+    current = cycle_vertex
+    
+    # Go back V steps to ensure we're in cycle
+    for _ in range(n):
+        current = parent[current]
+    
+    # Extract cycle
+    cycle = []
+    start = current
+    while True:
+        cycle.append(current)
+        current = parent[current]
+        if current == start:
+            cycle.append(current)
+            break
+    
+    cycle.reverse()
+    return True, cycle
+\end{lstlisting}
+
+\subsection{Time Complexity}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Operation} & \textbf{Time} \\
+\hline
+Initialization & $O(V)$ \\
+\hline
+Main Loop & $O(V \cdot E)$ \\
+\hline
+Negative Cycle Check & $O(E)$ \\
+\hline
+\textbf{Total} & $\mathbf{O(V \cdot E)}$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Space Complexity:} $O(V)$ for distance array
+
+\section{Dijkstra vs Bellman-Ford: Comparison}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{Dijkstra} & \textbf{Bellman-Ford} \\
+\hline
+Approach & Greedy & Dynamic Programming \\
+\hline
+Edge Weights & Non-negative only & Can be negative \\
+\hline
+Time Complexity & $O((V+E) \log V)$ & $O(V \cdot E)$ \\
+\hline
+Data Structure & Min-Heap & Edge list \\
+\hline
+Negative Cycles & Cannot detect & Detects \\
+\hline
+Speed & Faster & Slower \\
+\hline
+Use Case & GPS, routing & Currency, arbitrage \\
+\hline
+Finality & Distance final when visited & Distance final after V-1 iterations \\
+\hline
+Best For & Sparse, non-negative & Negative weights \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Important Properties \& Theorems}
+
+\subsection{Optimal Substructure}
+\begin{tcolorbox}[colback=green!5,colframe=green!75!black]
+\textbf{Property:} If shortest path from $s$ to $t$ goes through $u$:\\
+$shortest(s, t) = shortest(s, u) + shortest(u, t)$
+
+This allows us to build shortest paths incrementally.
+\end{tcolorbox}
+
+\subsection{Triangle Inequality}
+\begin{tcolorbox}[colback=green!5,colframe=green!75!black]
+\textbf{Theorem:} For any edge $(u, v)$ with weight $w$:\\
+$dist[v] \leq dist[u] + w$
+
+After algorithm completes, this holds for all edges.
+\end{tcolorbox}
+
+\subsection{Shortest Path Tree}
+\begin{itemize}
+    \item Parent pointers form a tree rooted at source
+    \item Each vertex has unique path to source
+    \item Tree contains shortest paths from source to all vertices
+    \item Tree has exactly $V-1$ edges (for connected graph)
+\end{itemize}
+
+\subsection{Negative Cycle Property}
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!75!black]
+\textbf{Theorem:} If graph has negative cycle reachable from source, shortest path is undefined (can be arbitrarily negative).
+
+Bellman-Ford detects this by checking if distances still decrease after $V-1$ iterations.
+\end{tcolorbox}
+
+\section{Advanced Variations \& Problems}
+
+\subsection{Single Destination Shortest Path}
+\begin{lstlisting}
+def shortest_to_target(graph, target, n):
+    """
+    Find shortest path from all vertices to target
+    Solution: Reverse all edges and run from target
+    """
+    # Reverse graph
+    reversed_graph = {i: [] for i in range(n)}
+    for u in graph:
+        for v, weight in graph[u]:
+            reversed_graph[v].append((u, weight))
+    
+    # Run Dijkstra from target on reversed graph
+    return dijkstra(reversed_graph, target, n)
+\end{lstlisting}
+
+\subsection{Path with Exactly K Edges}
+\begin{lstlisting}
+def shortest_path_k_edges(edges, source, target, n, k):
+    """
+    Find shortest path with exactly k edges
+    Uses dynamic programming
+    """
+    # dp[i][v] = shortest path to v using exactly i edges
+    dp = [[float('inf')] * n for _ in range(k + 1)]
+    dp[0][source] = 0
+    
+    for i in range(1, k + 1):
+        for u, v, weight in edges:
+            if dp[i-1][u] != float('inf'):
+                dp[i][v] = min(dp[i][v], dp[i-1][u] + weight)
+    
+    return dp[k][target]
+\end{lstlisting}
+
+\subsection{Shortest Path with At Most K Edges}
+\begin{lstlisting}
+def shortest_path_at_most_k_edges(edges, source, target, n, k):
+    """
+    Modified Bellman-Ford with only k iterations
+    LeetCode 787 - Cheapest Flights Within K Stops
+    """
+    dist = [float('inf')] * n
+    dist[source] = 0
+    
+    for i in range(k + 1):
+        temp = dist.copy()
+        for u, v, weight in edges:
+            if dist[u] != float('inf'):
+                temp[v] = min(temp[v], dist[u] + weight)
+        dist = temp
+    
+    return dist[target] if dist[target] != float('inf') else -1
+\end{lstlisting}
+
+\subsection{Network Delay Time (LeetCode 743)}
+\begin{lstlisting}
+def network_delay_time(times, n, k):
+    """
+    times: [[u, v, weight]]
+    n: number of nodes (1 to n)
+    k: source node
+    Returns: time for all nodes to receive signal
+    """
+    # Build graph
+    graph = {i: [] for i in range(1, n + 1)}
+    for u, v, w in times:
+        graph[u].append((v, w))
+    
+    # Run Dijkstra
+    dist, _ = dijkstra(graph, k, n + 1)
+    
+    # Find max distance (excluding source)
+    max_dist = 0
+    for i in range(1, n + 1):
+        if i == k:
+            continue
+        if dist[i] == float('inf'):
+            return -1  # Not all nodes reachable
+        max_dist = max(max_dist, dist[i])
+    
+    return max_dist
+\end{lstlisting}
+
+\subsection{Path with Minimum Cost (Modified Dijkstra)}
+\begin{lstlisting}
+def min_cost_with_constraint(graph, source, target, n, max_cost):
+    """
+    Find shortest path where total cost <= max_cost
+    Each edge has (distance, cost)
+    """
+    # State: (distance, cost, vertex)
+    pq = [(0, 0, source)]
+    visited = {}
+    
+    while pq:
+        dist, cost, u = heapq.heappop(pq)
+        
+        if u == target:
+            return dist
+        
+        if u in visited and visited[u] <= cost:
+            continue
+        
+        visited[u] = cost
+        
+        for v, edge_dist, edge_cost in graph.get(u, []):
+            new_cost = cost + edge_cost
+            if new_cost <= max_cost:
+                heapq.heappush(pq, (dist + edge_dist, new_cost, v))
+    
+    return -1
+\end{lstlisting}
+
+\subsection{Currency Arbitrage (Bellman-Ford Application)}
+\begin{lstlisting}
+import math
+
+def currency_arbitrage(rates):
+    """
+    Detect arbitrage opportunity in currency exchange
+    rates: 2D matrix where rates[i][j] = exchange rate from i to j
+    Returns: True if arbitrage exists
+    """
+    n = len(rates)
+    
+    # Convert to graph with logarithmic weights
+    # -log(rate) to detect positive cycles as negative cycles
+    edges = []
+    for i in range(n):
+        for j in range(n):
+            if i != j and rates[i][j] > 0:
+                weight = -math.log(rates[i][j])
+                edges.append([i, j, weight])
+    
+    # Run Bellman-Ford to detect negative cycle
+    _, _, has_negative_cycle = bellman_ford(edges, 0, n)
+    
+    return has_negative_cycle  # Arbitrage exists
+\end{lstlisting}
+
+\section{Common Mistakes \& How to Avoid}
+
+\begin{enumerate}
+    \item \textbf{Using Dijkstra with negative weights}
+    \begin{lstlisting}
+# WRONG: Dijkstra with negative edge
+graph = {0: [(1, -5)]}  # Negative weight!
+dijkstra(graph, 0, 2)  # Will give wrong answer
+
+# RIGHT: Use Bellman-Ford for negative weights
+edges = [[0, 1, -5]]
+bellman_ford(edges, 0, 2)
+    \end{lstlisting}
+    
+    \item \textbf{Not checking if vertex is visited in Dijkstra}
+    \begin{lstlisting}
+# WRONG: Processing vertex multiple times
+while pq:
+    d, u = heappop(pq)
+    # Missing visited check
+    
+# RIGHT: Check visited status
+while pq:
+    d, u = heappop(pq)
+    if visited[u]:
+        continue
+    visited[u] = True
+    \end{lstlisting}
+    
+    \item \textbf{Forgetting to check infinity in Bellman-Ford}
+    \begin{lstlisting}
+# WRONG: Can cause overflow
+for u, v, w in edges:
+    dist[v] = min(dist[v], dist[u] + w)
+
+# RIGHT: Check for infinity
+for u, v, w in edges:
+    if dist[u] != float('inf'):
+        dist[v] = min(dist[v], dist[u] + w)
+    \end{lstlisting}
+    
+    \item \textbf{Not handling disconnected graphs}
+    \begin{lstlisting}
+# Check if target is reachable
+dist, _ = dijkstra(graph, source, n)
+if dist[target] == float('inf'):
+    print("No path exists")
+    \end{lstlisting}
+    
+    \item \textbf{Wrong initialization}
+    \begin{lstlisting}
+# WRONG: All distances = 0
+dist = [0] * n
+
+# RIGHT: Source = 0, others = infinity
+dist = [float('inf')] * n
+dist[source] = 0
+    \end{lstlisting}
+\end{enumerate}
+
+\section{Practice Problems}
+
+\subsection{Dijkstra Problems}
+\begin{enumerate}
+    \item \textbf{LeetCode 743:} Network Delay Time
+    \item \textbf{LeetCode 1514:} Path with Maximum Probability
+    \item \textbf{LeetCode 1631:} Path With Minimum Effort
+    \item \textbf{LeetCode 1786:} Number of Restricted Paths
+    \item \textbf{LeetCode 2045:} Second Minimum Time to Reach Destination
+    \item \textbf{LeetCode 882:} Reachable Nodes In Subdivided Graph
+\end{enumerate}
+
+\subsection{Bellman-Ford Problems}
+\begin{enumerate}
+    \item \textbf{LeetCode 787:} Cheapest Flights Within K Stops
+    \item \textbf{LeetCode 1334:} Find the City With Smallest Number of Neighbors
+    \item \textbf{Currency Arbitrage:} Detect arbitrage opportunities
+    \item \textbf{Time Travel Paradox:} Negative cycle detection
+\end{enumerate}
+
+\subsection{General SSSP Problems}
+\begin{enumerate}
+    \item \textbf{LeetCode 505:} The Maze II
+    \item \textbf{LeetCode 847:} Shortest Path Visiting All Nodes
+    \item \textbf{LeetCode 1368:} Minimum Cost to Make at Least One Valid Path
+\end{enumerate}
+
+\section{Quick Reference Templates}
+
+\subsection{Dijkstra Template}
+\begin{lstlisting}
+import heapq
+
+def dijkstra(graph, source, n):
+    dist = [float('inf')] * n
+    dist[source] = 0
+    visited = [False] * n
+    pq = [(0, source)]
+    
+    while pq:
+        d, u = heapq.heappop(pq)
+        if visited[u]:
+            continue
+        visited[u] = True
+        
+        for v, weight in graph.get(u, []):
+            if dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+                heapq.heappush(pq, (dist[v], v))
+    
+    return dist
+\end{lstlisting}
+
+\subsection{Bellman-Ford Template}
+\begin{lstlisting}
+def bellman_ford(edges, source, n):
+    dist = [float('inf')] * n
+    dist[source] = 0
+    
+    for _ in range(n - 1):
+        for u, v, w in edges:
+            if dist[u] != float('inf'):
+                dist[v] = min(dist[v], dist[u] + w)
+    
+    # Check negative cycle
+    for u, v, w in edges:
+        if dist[u] != float('inf') and dist[u] + w < dist[v]:
+            return None  # Negative cycle exists
+    
+    return dist
+\end{lstlisting}
+
+\subsection{Path Reconstruction Template}
+\begin{lstlisting}
+def reconstruct_path(parent, source, target):
+    if parent[target] == -1 and target != source:
+        return []
+    
+    path = []
+    current = target
+    while current != -1:
+        path.append(current)
+        current = parent[current]
+    
+    path.reverse()
+    return path
+\end{lstlisting}
+
+\section{Algorithm Selection Guide}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!75!black,title=When to Use Which?]
+\textbf{Use Dijkstra when:}
+\begin{itemize}
+    \item All edge weights are non-negative
+    \item Need fast performance
+    \item Graph can be sparse or dense
+    \item Single source to all destinations
+\end{itemize}
+
+\textbf{Use Bellman-Ford when:}
+\begin{itemize}
+    \item Edge weights can be negative
+    \item Need to detect negative cycles
+    \item Graph has few edges
+    \item Need simple implementation
+    \item Distributed system (can be parallelized)
+\end{itemize}
+
+\textbf{Use BFS (unweighted) when:}
+\begin{itemize}
+    \item All edges have weight 1
+    \item Simpler and faster than Dijkstra
+\end{itemize}
+\end{tcolorbox}
+
+\section{Exam Tips}
+
+\begin{tcolorbox}[colback=blue!10,colframe=blue!75!black,title=Remember for Exams]
+\begin{enumerate}
+    \item \textbf{Dijkstra:} $O((V+E) \log V)$, non-negative weights, min-heap
+    \item \textbf{Bellman-Ford:} $O(V \cdot E)$, negative weights OK, detects cycles
+    \item \textbf{Initialization:} $dist[source] = 0$, others = $\infty$
+    \item \textbf{Relaxation:} $dist[v] = \min(dist[v], dist[u] + weight(u,v))$
+    \item \textbf{Visited check:} Essential in Dijkstra to avoid reprocessing
+    \item \textbf{Infinity check:} Essential in Bellman-Ford before relaxation
+    \item \textbf{V-1 iterations:} Bellman-Ford needs exactly V-1 rounds
+    \item \textbf{Negative cycle:} If distance changes in iteration V
+    \item \textbf{Path reconstruction:} Use parent array
+    \item \textbf{Disconnected graph:} Check if $dist[target] = \infty$
+\end{enumerate}
+\end{tcolorbox}
+
+\section{Complexity Summary}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Algorithm} & \textbf{Time} & \textbf{Space} & \textbf{Limitation} \\
+\hline
+Dijkstra (Heap) & $O((V+E) \log V)$ & $O(V)$ & Non-negative only \\
+\hline
+Dijkstra (Array) & $O(V^2)$ & $O(V)$ & Non-negative only \\
+\hline
+Bellman-Ford & $O(V \cdot E)$ & $O(V)$ & Slower \\
+\hline
+BFS (unweighted) & $O(V + E)$ & $O(V)$ & Weight = 1 only \\
+\hline
+\end{tabular}
+\end{table}
+
+\vfill
+
+\begin{center}
+\textbf{Key Principle:} Shortest paths have optimal substructure\\
+\textit{Good luck with your exam!}
+\end{center}
+
+\end{document}
