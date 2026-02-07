@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\title{Hashing Data Structure -- Exam Notes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Core Concept}
+Map keys to array indices using a hash function to achieve $O(1)$ average-case insert, search, and delete operations.
+
+\section*{Hash Function}
+\begin{itemize}[noitemsep]
+    \item Converts key $\to$ integer index in range $[0, m-1]$ where $m$ is table size
+    \item \textbf{Required properties:} deterministic, uniform distribution, fast to compute
+    \item \textbf{Common methods:}
+    \begin{itemize}[noitemsep]
+        \item Division: $h(k) = k \bmod m$ (use prime $m$, avoid powers of 2)
+        \item Multiplication method
+        \item Universal hashing
+    \end{itemize}
+    \item \textbf{Computationally expensive:} cryptographic hash functions slow down operations
+\end{itemize}
+
+\section*{Collision Resolution}
+
+\subsection*{1. Chaining (Separate Chaining)}
+\begin{itemize}[noitemsep]
+    \item Each table slot contains a linked list of colliding elements
+    \item Insert: add element to list at $h(k)$
+    \item Search/Delete: traverse list at $h(k)$
+    \item Average time: $O(1 + \alpha)$ where $\alpha = n/m$
+    \item \textbf{No clustering issues}
+    \item Works well even when $\alpha > 1$
+\end{itemize}
+
+\subsection*{2. Open Addressing}
+All elements stored in the table itself. Use probe sequence to find next available slot.
+
+\textbf{Linear Probing:} $h(k, i) = (h(k) + i) \bmod m$
+\begin{itemize}[noitemsep]
+    \item Simple and cache-friendly
+    \item \textbf{Primary clustering:} long runs of occupied slots form, degrading performance
+\end{itemize}
+
+\textbf{Quadratic Probing:} $h(k, i) = (h(k) + c_1 i + c_2 i^2) \bmod m$
+\begin{itemize}[noitemsep]
+    \item Reduces primary clustering
+    \item \textbf{Secondary clustering:} keys with same $h(k)$ follow identical probe sequences
+    \item May not probe all table slots (requires careful choice of $m$, $c_1$, $c_2$)
+\end{itemize}
+
+\textbf{Double Hashing:} $h(k, i) = (h_1(k) + i \cdot h_2(k)) \bmod m$
+\begin{itemize}[noitemsep]
+    \item Eliminates both primary and secondary clustering
+    \item Requires $h_2(k)$ relatively prime to $m$ (if $m$ is prime, just need $h_2(k) \neq 0$)
+    \item \textbf{Computationally expensive:} requires computing two hash functions
+    \item Best probe distribution among open addressing methods
+\end{itemize}
+
+\textbf{Open addressing requirements:}
+\begin{itemize}[noitemsep]
+    \item Must have $\alpha < 1$ (cannot have more elements than slots)
+    \item Performance degrades significantly as table fills
+    \item Deletion requires special handling (use tombstones/lazy deletion)
+\end{itemize}
+
+\section*{Clustering}
+\begin{itemize}[noitemsep]
+    \item \textbf{Primary clustering:} consecutive filled slots form long runs (linear probing)
+    \item \textbf{Secondary clustering:} different keys with same initial hash follow identical probe paths (quadratic probing)
+    \item Both increase expected search time beyond theoretical $1/(1-\alpha)$
+\end{itemize}
+
+\section*{Time Complexity}
+\begin{itemize}[noitemsep]
+    \item \textbf{Average case:} $O(1)$ for insert, search, delete
+    \item \textbf{Worst case:} $O(n)$ when all keys collide
+    \item Performance depends on: good hash function + appropriate table size + low $\alpha$
+\end{itemize}
+
+\section*{Table Size Selection}
+\begin{itemize}[noitemsep]
+    \item Use \textbf{prime numbers} to minimize collisions
+    \item Avoid powers of 2 (poor distribution with certain hash functions)
+    \item \textbf{Rehashing:} when $\alpha$ exceeds threshold, create larger table and reinsert all elements
+    \item \textbf{Rehashing is computationally expensive:} $O(n)$ operation
+\end{itemize}
+
+\section*{Key Formulas}
+\begin{itemize}[noitemsep]
+    \item Expected chain length (chaining): $\alpha = n/m$
+    \item Expected probes (open addressing): $\frac{1}{1-\alpha}$ for successful search
+    \item For unsuccessful search (open addressing): $\frac{1}{(1-\alpha)^2}$
+\end{itemize}
+
+\section*{When to Use Hash Tables}
+\begin{itemize}[noitemsep]
+    \item[$\checkmark$] Fast lookups with unique keys
+    \item[$\checkmark$] Order doesn't matter
+    \item[$\times$] Need sorted data (use BST instead)
+    \item[$\times$] Need range queries (use BST instead)
+    \item[$\times$] Need guaranteed worst-case $O(\log n)$ (use balanced BST)
+\end{itemize}
+
+\end{document}
