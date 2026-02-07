@@ -1,0 +1,767 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Python code listing settings
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    tabsize=4,
+    showstringspaces=false,
+    morekeywords={self}
+}
+
+\title{\textbf{Minimum Spanning Tree (MST)\\Kruskal's \& Prim's Algorithms\\Complete Python Exam Notes}}
+\author{Data Structures \& Algorithms}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!75!black,title=Key Concepts]
+\textbf{MST:} A tree that connects all vertices with minimum total edge weight\\
+\textbf{Kruskal's:} Greedy algorithm using DSU (edge-based)\\
+\textbf{Prim's:} Greedy algorithm using priority queue (vertex-based)
+\end{tcolorbox}
+
+\section{Minimum Spanning Tree - Fundamentals}
+
+\subsection{Definition}
+\begin{itemize}
+    \item \textbf{Spanning Tree:} A subgraph that includes all vertices and is a tree (connected, no cycles)
+    \item \textbf{MST:} Spanning tree with minimum sum of edge weights
+    \item Works only on \textbf{undirected, connected, weighted graphs}
+\end{itemize}
+
+\subsection{Properties of MST}
+\begin{enumerate}
+    \item Graph with $V$ vertices has exactly $V-1$ edges in MST
+    \item MST is always a tree (connected, acyclic)
+    \item Removing any edge disconnects the tree
+    \item Adding any edge creates exactly one cycle
+    \item MST may not be unique (multiple MSTs with same weight possible)
+    \item Edge with minimum weight must be in some MST
+\end{enumerate}
+
+\subsection{Applications}
+\begin{itemize}
+    \item Network design (roads, electricity, water pipes)
+    \item Circuit design
+    \item Clustering algorithms
+    \item Approximation algorithms for NP-hard problems
+    \item Image segmentation
+    \item Network routing protocols
+\end{itemize}
+
+\section{Cut Property (Fundamental Theorem)}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!75!black,title=Cut Property]
+\textbf{Theorem:} For any cut $(S, V-S)$ of the graph, the minimum weight edge crossing the cut must be in some MST.
+
+\textbf{Greedy Choice:} Both Kruskal's and Prim's use this property to build MST greedily.
+\end{tcolorbox}
+
+\subsection{What is a Cut?}
+\begin{itemize}
+    \item A \textbf{cut} is a partition of vertices into two disjoint sets
+    \item An edge \textbf{crosses} the cut if its endpoints are in different sets
+    \item The \textbf{light edge} is the minimum weight edge crossing the cut
+\end{itemize}
+
+\section{Kruskal's Algorithm}
+
+\subsection{Core Idea}
+\begin{itemize}
+    \item \textbf{Edge-based approach}: Process edges in increasing order of weight
+    \item Add edge if it doesn't create a cycle
+    \item Use \textbf{Disjoint Set Union (DSU)} to detect cycles
+    \item Stop when we have $V-1$ edges
+\end{itemize}
+
+\subsection{Algorithm Steps}
+\begin{enumerate}
+    \item Sort all edges by weight (ascending)
+    \item Initialize DSU with $V$ vertices
+    \item For each edge $(u, v, w)$ in sorted order:
+        \begin{itemize}
+            \item If $u$ and $v$ are in different components (no cycle):
+                \begin{itemize}
+                    \item Add edge to MST
+                    \item Union the components
+                \end{itemize}
+        \end{itemize}
+    \item Stop when MST has $V-1$ edges
+\end{enumerate}
+
+\subsection{Python Implementation}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px
+        self.parent[py] = px
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1
+        return True
+
+def kruskal(n, edges):
+    """
+    n: number of vertices (0 to n-1)
+    edges: list of [u, v, weight]
+    Returns: (mst_weight, mst_edges)
+    """
+    # Step 1: Sort edges by weight
+    edges.sort(key=lambda x: x[2])
+    
+    # Step 2: Initialize DSU
+    dsu = DSU(n)
+    
+    mst_weight = 0
+    mst_edges = []
+    
+    # Step 3: Process edges
+    for u, v, weight in edges:
+        # Check if adding edge creates cycle
+        if dsu.union(u, v):
+            mst_weight += weight
+            mst_edges.append([u, v, weight])
+            
+            # Stop when we have n-1 edges
+            if len(mst_edges) == n - 1:
+                break
+    
+    return mst_weight, mst_edges
+
+# Example usage
+n = 4
+edges = [[0,1,10], [0,2,6], [0,3,5], [1,3,15], [2,3,4]]
+weight, mst = kruskal(n, edges)
+print(f"MST Weight: {weight}")  # Output: 19
+print(f"MST Edges: {mst}")
+\end{lstlisting}
+
+\subsection{Time Complexity Analysis}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Step} & \textbf{Time} & \textbf{Reason} \\
+\hline
+Sort edges & $O(E \log E)$ & Sorting $E$ edges \\
+\hline
+DSU operations & $O(E \cdot \alpha(V))$ & $E$ union/find operations \\
+\hline
+\textbf{Total} & $\mathbf{O(E \log E)}$ & Sorting dominates \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Note:} Since $E \leq V^2$, we have $\log E = O(\log V)$
+
+\textbf{Space Complexity:} $O(V)$ for DSU
+
+\subsection{When to Use Kruskal's}
+\begin{itemize}
+    \item Graph is represented as edge list
+    \item Sparse graphs ($E \approx V$)
+    \item Need to find MST edges explicitly
+    \item Edges already sorted or easy to sort
+\end{itemize}
+
+\section{Prim's Algorithm}
+
+\subsection{Core Idea}
+\begin{itemize}
+    \item \textbf{Vertex-based approach}: Grow MST from a starting vertex
+    \item Always add the minimum weight edge connecting MST to a new vertex
+    \item Use \textbf{priority queue (min-heap)} to find minimum edge
+    \item Similar to Dijkstra's algorithm
+\end{itemize}
+
+\subsection{Algorithm Steps}
+\begin{enumerate}
+    \item Start from any vertex (usually vertex 0)
+    \item Mark it as visited, add all its edges to priority queue
+    \item Repeat until all vertices are visited:
+        \begin{itemize}
+            \item Extract minimum weight edge from priority queue
+            \item If the destination vertex is not visited:
+                \begin{itemize}
+                    \item Mark it as visited
+                    \item Add edge to MST
+                    \item Add all edges from this vertex to priority queue
+                \end{itemize}
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Python Implementation (Using Min-Heap)}
+
+\begin{lstlisting}
+import heapq
+
+def prim(n, graph):
+    """
+    n: number of vertices (0 to n-1)
+    graph: adjacency list {u: [(v, weight), ...]}
+    Returns: (mst_weight, mst_edges)
+    """
+    visited = [False] * n
+    min_heap = []
+    mst_weight = 0
+    mst_edges = []
+    
+    # Start from vertex 0
+    visited[0] = True
+    
+    # Add all edges from vertex 0 to heap
+    for neighbor, weight in graph.get(0, []):
+        heapq.heappush(min_heap, (weight, 0, neighbor))
+    
+    while min_heap:
+        weight, u, v = heapq.heappop(min_heap)
+        
+        # Skip if vertex already visited
+        if visited[v]:
+            continue
+        
+        # Add edge to MST
+        visited[v] = True
+        mst_weight += weight
+        mst_edges.append([u, v, weight])
+        
+        # Add all edges from newly visited vertex
+        for neighbor, w in graph.get(v, []):
+            if not visited[neighbor]:
+                heapq.heappush(min_heap, (w, v, neighbor))
+    
+    return mst_weight, mst_edges
+
+# Example usage
+n = 4
+graph = {
+    0: [(1, 10), (2, 6), (3, 5)],
+    1: [(0, 10), (3, 15)],
+    2: [(0, 6), (3, 4)],
+    3: [(0, 5), (1, 15), (2, 4)]
+}
+weight, mst = prim(n, graph)
+print(f"MST Weight: {weight}")  # Output: 19
+print(f"MST Edges: {mst}")
+\end{lstlisting}
+
+\subsection{Alternative: Using Key Array (Classic Prim's)}
+
+\begin{lstlisting}
+def prim_classic(n, graph):
+    """
+    Classic Prim's using key array
+    More similar to textbook version
+    """
+    import sys
+    
+    # Key values to pick minimum weight edge
+    key = [sys.maxsize] * n
+    parent = [-1] * n
+    in_mst = [False] * n
+    
+    # Start from vertex 0
+    key[0] = 0
+    
+    for _ in range(n):
+        # Find minimum key vertex not in MST
+        u = -1
+        min_key = sys.maxsize
+        for v in range(n):
+            if not in_mst[v] and key[v] < min_key:
+                min_key = key[v]
+                u = v
+        
+        # Add vertex to MST
+        in_mst[u] = True
+        
+        # Update keys of adjacent vertices
+        for v, weight in graph.get(u, []):
+            if not in_mst[v] and weight < key[v]:
+                key[v] = weight
+                parent[v] = u
+    
+    # Build MST edges
+    mst_weight = sum(key)
+    mst_edges = []
+    for v in range(1, n):
+        if parent[v] != -1:
+            mst_edges.append([parent[v], v, key[v]])
+    
+    return mst_weight, mst_edges
+\end{lstlisting}
+
+\subsection{Time Complexity Analysis}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Implementation} & \textbf{Time} & \textbf{Best For} \\
+\hline
+Min-Heap & $O(E \log V)$ & Sparse graphs \\
+\hline
+Key Array & $O(V^2)$ & Dense graphs \\
+\hline
+Fibonacci Heap & $O(E + V \log V)$ & Theoretical best \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Space Complexity:} $O(V)$ for visited array and heap
+
+\subsection{When to Use Prim's}
+\begin{itemize}
+    \item Graph is represented as adjacency list
+    \item Dense graphs ($E \approx V^2$)
+    \item Need to build MST incrementally
+    \item Starting vertex matters
+\end{itemize}
+
+\section{Kruskal vs Prim: Comparison}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{Kruskal's} & \textbf{Prim's} \\
+\hline
+Approach & Edge-based (global) & Vertex-based (local) \\
+\hline
+Data Structure & DSU & Min-Heap / Priority Queue \\
+\hline
+Time (sparse) & $O(E \log E)$ & $O(E \log V)$ \\
+\hline
+Time (dense) & $O(E \log E)$ & $O(V^2)$ (with array) \\
+\hline
+Graph Representation & Edge list & Adjacency list \\
+\hline
+Best For & Sparse graphs & Dense graphs \\
+\hline
+Implementation & Simpler with DSU & Slightly more complex \\
+\hline
+Disconnected Graph & Gives MST forest & Needs modification \\
+\hline
+Starting Vertex & No preference & Can start anywhere \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Important Theorems \& Properties}
+
+\subsection{Uniqueness of MST}
+\begin{itemize}
+    \item If all edge weights are distinct, MST is unique
+    \item If edge weights can repeat, multiple MSTs may exist
+    \item All MSTs have the same total weight
+\end{itemize}
+
+\subsection{Cycle Property}
+\begin{tcolorbox}[colback=green!5,colframe=green!75!black]
+\textbf{Cycle Property:} For any cycle in the graph, the maximum weight edge in the cycle cannot be in any MST (unless there are multiple edges with same max weight).
+\end{tcolorbox}
+
+\subsection{Cut Property (Repeated for Emphasis)}
+\begin{tcolorbox}[colback=green!5,colframe=green!75!black]
+\textbf{Cut Property:} For any cut of the graph, the minimum weight edge crossing the cut must be in some MST.
+\end{tcolorbox}
+
+\subsection{MST Edge Count}
+\begin{itemize}
+    \item A graph with $V$ vertices has exactly $V-1$ edges in MST
+    \item If graph is disconnected with $k$ components, MST forest has $V-k$ edges
+\end{itemize}
+
+\section{Advanced Problems \& Variations}
+
+\subsection{Second Best MST}
+\begin{lstlisting}
+def second_best_mst(n, edges):
+    """
+    Find second minimum spanning tree weight
+    Strategy: Find MST, then for each edge in MST,
+    remove it and find MST of remaining graph
+    """
+    # Find original MST
+    mst_weight, mst_edges = kruskal(n, edges)
+    
+    second_best = float('inf')
+    
+    # Try removing each MST edge
+    for exclude_edge in mst_edges:
+        # Build graph without this edge
+        filtered_edges = [e for e in edges 
+                         if e != exclude_edge]
+        
+        # Find MST without this edge
+        weight, new_mst = kruskal(n, filtered_edges)
+        
+        # Check if valid MST found
+        if len(new_mst) == n - 1:
+            second_best = min(second_best, weight)
+    
+    return second_best if second_best != float('inf') else -1
+\end{lstlisting}
+
+\subsection{Maximum Spanning Tree}
+\begin{lstlisting}
+def maximum_spanning_tree(n, edges):
+    """
+    Find maximum spanning tree instead of minimum
+    Simple modification: negate weights or sort descending
+    """
+    # Method 1: Negate weights
+    negated_edges = [[u, v, -w] for u, v, w in edges]
+    mst_weight, mst_edges = kruskal(n, negated_edges)
+    
+    # Restore original weights
+    actual_weight = -mst_weight
+    actual_edges = [[u, v, -w] for u, v, w in mst_edges]
+    
+    return actual_weight, actual_edges
+
+# Method 2: Sort in descending order
+def maximum_spanning_tree_v2(n, edges):
+    edges.sort(key=lambda x: x[2], reverse=True)
+    dsu = DSU(n)
+    mst_weight = 0
+    mst_edges = []
+    
+    for u, v, weight in edges:
+        if dsu.union(u, v):
+            mst_weight += weight
+            mst_edges.append([u, v, weight])
+            if len(mst_edges) == n - 1:
+                break
+    
+    return mst_weight, mst_edges
+\end{lstlisting}
+
+\subsection{MST with Fixed Edge}
+\begin{lstlisting}
+def mst_with_fixed_edge(n, edges, must_include):
+    """
+    Find MST that must include a specific edge
+    must_include: [u, v, weight]
+    """
+    u, v, w = must_include
+    
+    # Add the required edge
+    mst_weight = w
+    mst_edges = [must_include]
+    
+    # Union the two vertices
+    dsu = DSU(n)
+    dsu.union(u, v)
+    
+    # Sort remaining edges
+    edges.sort(key=lambda x: x[2])
+    
+    # Build rest of MST
+    for edge in edges:
+        if edge == must_include:
+            continue
+        u, v, weight = edge
+        if dsu.union(u, v):
+            mst_weight += weight
+            mst_edges.append(edge)
+            if len(mst_edges) == n - 1:
+                break
+    
+    return mst_weight, mst_edges
+\end{lstlisting}
+
+\subsection{Minimum Bottleneck Spanning Tree}
+\begin{lstlisting}
+def min_bottleneck_spanning_tree(n, edges):
+    """
+    Find spanning tree where maximum edge weight is minimized
+    Note: Any MST is also a minimum bottleneck spanning tree
+    """
+    # MST automatically minimizes the bottleneck
+    mst_weight, mst_edges = kruskal(n, edges)
+    
+    # Find bottleneck (maximum edge in MST)
+    bottleneck = max(w for u, v, w in mst_edges)
+    
+    return bottleneck, mst_edges
+\end{lstlisting}
+
+\section{Common MST Problems}
+
+\subsection{Check if Edge is in MST}
+\begin{lstlisting}
+def is_edge_in_mst(n, edges, query_edge):
+    """
+    Check if a specific edge is in some MST
+    """
+    mst_weight, mst_edges = kruskal(n, edges)
+    
+    # Direct check
+    for edge in mst_edges:
+        if edge == query_edge:
+            return True
+    
+    # Alternative: Check if removing edge increases MST weight
+    filtered = [e for e in edges if e != query_edge]
+    new_weight, _ = kruskal(n, filtered)
+    
+    # If weight increases, edge was in MST
+    return new_weight > mst_weight
+\end{lstlisting}
+
+\subsection{MST Cost (Just Weight, No Edges)}
+\begin{lstlisting}
+def mst_cost_only(n, edges):
+    """
+    Return only MST weight, faster if edges not needed
+    """
+    edges.sort(key=lambda x: x[2])
+    dsu = DSU(n)
+    cost = 0
+    edge_count = 0
+    
+    for u, v, weight in edges:
+        if dsu.union(u, v):
+            cost += weight
+            edge_count += 1
+            if edge_count == n - 1:
+                break
+    
+    return cost
+\end{lstlisting}
+
+\subsection{MST on Complete Graph}
+\begin{lstlisting}
+def mst_complete_graph_from_points(points):
+    """
+    Given n points, build MST of complete graph
+    Edge weight = Manhattan distance
+    points: list of [x, y] coordinates
+    """
+    n = len(points)
+    edges = []
+    
+    # Generate all edges
+    for i in range(n):
+        for j in range(i + 1, n):
+            dist = abs(points[i][0] - points[j][0]) + \
+                   abs(points[i][1] - points[j][1])
+            edges.append([i, j, dist])
+    
+    # Find MST
+    return kruskal(n, edges)
+
+# Example: LeetCode 1584 - Min Cost to Connect All Points
+points = [[0,0], [2,2], [3,10], [5,2], [7,0]]
+cost, mst = mst_complete_graph_from_points(points)
+print(f"MST Cost: {cost}")
+\end{lstlisting}
+
+\section{Proof of Correctness}
+
+\subsection{Why Kruskal's Works (Greedy Choice)}
+\begin{enumerate}
+    \item At each step, we add the minimum weight edge that doesn't create a cycle
+    \item By cut property, this edge must be in some MST
+    \item We never add an edge that creates a cycle
+    \item We stop when we have $V-1$ edges (spanning tree)
+    \item Result is minimum because we always choose minimum weight edges
+\end{enumerate}
+
+\subsection{Why Prim's Works}
+\begin{enumerate}
+    \item Start with any vertex as initial MST
+    \item At each step, add minimum weight edge connecting MST to new vertex
+    \item This is a cut between MST vertices and remaining vertices
+    \item By cut property, minimum edge crossing cut is in some MST
+    \item Continue until all vertices included
+\end{enumerate}
+
+\section{Common Mistakes \& How to Avoid}
+
+\begin{enumerate}
+    \item \textbf{Not checking for cycles in Kruskal's}
+    \begin{lstlisting}
+# WRONG: No cycle check
+for u, v, w in edges:
+    mst_edges.append([u, v, w])
+
+# RIGHT: Check with DSU
+for u, v, w in edges:
+    if dsu.union(u, v):
+        mst_edges.append([u, v, w])
+    \end{lstlisting}
+    
+    \item \textbf{Not sorting edges in Kruskal's}
+    \begin{lstlisting}
+# WRONG: No sorting
+for u, v, w in edges:
+    ...
+
+# RIGHT: Sort first
+edges.sort(key=lambda x: x[2])
+for u, v, w in edges:
+    ...
+    \end{lstlisting}
+    
+    \item \textbf{Forgetting to mark visited in Prim's}
+    \begin{lstlisting}
+# WRONG: No visited check
+while heap:
+    w, u, v = heappop(heap)
+    mst_edges.append([u, v, w])
+
+# RIGHT: Check visited
+while heap:
+    w, u, v = heappop(heap)
+    if visited[v]:
+        continue
+    visited[v] = True
+    mst_edges.append([u, v, w])
+    \end{lstlisting}
+    
+    \item \textbf{Wrong graph representation}
+    \begin{lstlisting}
+# For Kruskal: Use edge list
+edges = [[u, v, weight], ...]
+
+# For Prim: Use adjacency list
+graph = {u: [(v, weight), ...], ...}
+    \end{lstlisting}
+    
+    \item \textbf{Not handling disconnected graphs}
+    \begin{lstlisting}
+# Check if MST is complete
+if len(mst_edges) == n - 1:
+    print("Valid MST")
+else:
+    print("Graph is disconnected")
+    \end{lstlisting}
+\end{enumerate}
+
+\section{Practice Problems}
+
+\subsection{LeetCode Problems}
+\begin{enumerate}
+    \item \textbf{1135:} Connecting Cities With Minimum Cost (Direct MST)
+    \item \textbf{1584:} Min Cost to Connect All Points (MST on complete graph)
+    \item \textbf{1489:} Find Critical and Pseudo-Critical Edges in MST
+    \item \textbf{1168:} Optimize Water Distribution (Modified MST)
+    \item \textbf{1514:} Path with Maximum Probability (Modified Prim's)
+    \item \textbf{1376:} Time Needed to Inform All Employees (Tree DP)
+\end{enumerate}
+
+\subsection{Classic Problems}
+\begin{enumerate}
+    \item Network design with minimum cost
+    \item Clustering (break MST to get k clusters)
+    \item Finding bridges in graph
+    \item Steiner tree problem
+\end{enumerate}
+
+\section{Quick Reference Templates}
+
+\subsection{Kruskal's Template}
+\begin{lstlisting}
+# Quick Kruskal template
+def kruskal(n, edges):
+    edges.sort(key=lambda x: x[2])
+    dsu = DSU(n)
+    cost = 0
+    
+    for u, v, w in edges:
+        if dsu.union(u, v):
+            cost += w
+    
+    return cost
+\end{lstlisting}
+
+\subsection{Prim's Template}
+\begin{lstlisting}
+# Quick Prim template
+import heapq
+
+def prim(n, graph):
+    visited = [False] * n
+    heap = [(0, 0)]  # (weight, vertex)
+    cost = 0
+    
+    while heap:
+        w, v = heapq.heappop(heap)
+        if visited[v]:
+            continue
+        
+        visited[v] = True
+        cost += w
+        
+        for neighbor, weight in graph.get(v, []):
+            if not visited[neighbor]:
+                heapq.heappush(heap, (weight, neighbor))
+    
+    return cost
+\end{lstlisting}
+
+\section{Exam Tips}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!75!black,title=Remember for Exams]
+\begin{enumerate}
+    \item MST has exactly $V-1$ edges
+    \item Kruskal's: Sort edges + DSU
+    \item Prim's: Priority queue + visited array
+    \item Time: $O(E \log E)$ for Kruskal, $O(E \log V)$ for Prim (heap)
+    \item Space: $O(V)$ for both
+    \item Both are greedy algorithms using cut property
+    \item Kruskal better for sparse, Prim better for dense
+    \item Always check if graph is connected
+    \item For maximum spanning tree: negate weights or reverse sort
+    \item DSU is essential for Kruskal's
+\end{enumerate}
+\end{tcolorbox}
+
+\vfill
+
+\begin{center}
+\textbf{Key Formula:} MST Weight = Sum of $V-1$ minimum edges without cycles\\
+\textit{Good luck with your exam!}
+\end{center}
+
+\end{document}
