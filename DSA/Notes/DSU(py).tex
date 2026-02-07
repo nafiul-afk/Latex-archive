@@ -1,0 +1,667 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+
+% Python code listing settings
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    tabsize=4,
+    showstringspaces=false,
+    morekeywords={self}
+}
+
+\title{\textbf{Disjoint Set Union (DSU)\\Complete Python Exam Notes}}
+\author{Data Structures \& Algorithms}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!75!black,title=Key Takeaway]
+Always use \textbf{BOTH} path compression AND union by rank/size for optimal $O(\alpha(n))$ complexity!
+\end{tcolorbox}
+
+\section{Introduction \& Purpose}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Also called:} Union-Find, Merge-Find Set
+    \item \textbf{Purpose:} Maintains a collection of disjoint (non-overlapping) sets
+    \item \textbf{Key operations:} 
+        \begin{itemize}
+            \item \texttt{find}: Identify set representative
+            \item \texttt{union}: Merge two sets
+        \end{itemize}
+    \item \textbf{Applications:} Kruskal's MST, cycle detection, dynamic connectivity, connected components
+\end{itemize}
+
+\section{Basic Structure}
+
+\begin{tcolorbox}[colback=green!5,colframe=green!75!black]
+\textbf{Data Structure:}
+\begin{itemize}
+    \item \texttt{parent[i]} = parent of element $i$
+    \item \texttt{rank[i]} or \texttt{size[i]} = tree height or set size
+\end{itemize}
+
+\textbf{Initialization:} \texttt{parent[i] = i} (each element is its own parent)\\
+\textbf{Representative/Root:} Element where \texttt{parent[i] = i}
+\end{tcolorbox}
+
+\section{Simple Implementation (No Optimization)}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+    
+    def find(self, x):
+        # Find root of x
+        if self.parent[x] == x:
+            return x
+        return self.find(self.parent[x])
+    
+    def union(self, x, y):
+        # Merge sets containing x and y
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if root_x != root_y:
+            self.parent[root_y] = root_x
+    
+    def connected(self, x, y):
+        # Check if x and y are in same set
+        return self.find(x) == self.find(y)
+\end{lstlisting}
+
+\textbf{Time Complexity:} $O(n)$ per operation (worst case)
+
+\section{Optimization 1: Path Compression}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+    
+    def find(self, x):
+        # Path compression: make x point directly to root
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if root_x != root_y:
+            self.parent[root_y] = root_x
+    
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+\end{lstlisting}
+
+\begin{itemize}
+    \item Flattens tree by making nodes point directly to root
+    \item \textbf{Time:} $O(\log n)$ amortized per operation
+\end{itemize}
+
+\section{Optimization 2: Union by Rank}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n  # Height of tree
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if root_x == root_y:
+            return
+        
+        # Attach smaller tree under larger tree
+        if self.rank[root_x] < self.rank[root_y]:
+            self.parent[root_x] = root_y
+        elif self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+        else:
+            self.parent[root_y] = root_x
+            self.rank[root_x] += 1
+    
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+\end{lstlisting}
+
+\begin{itemize}
+    \item Keeps tree height minimal
+    \item \textbf{Time:} $O(\alpha(n))$ with path compression (near constant)
+\end{itemize}
+
+\section{Optimization 3: Union by Size}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.size = [1] * n  # Size of each set
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if root_x == root_y:
+            return
+        
+        # Attach smaller set to larger set
+        if self.size[root_x] < self.size[root_y]:
+            self.parent[root_x] = root_y
+            self.size[root_y] += self.size[root_x]
+        else:
+            self.parent[root_y] = root_x
+            self.size[root_x] += self.size[root_y]
+    
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+    
+    def get_size(self, x):
+        # Get size of set containing x
+        return self.size[self.find(x)]
+\end{lstlisting}
+
+\begin{itemize}
+    \item Easier to track component sizes
+    \item \textbf{Time:} $O(\alpha(n))$ with path compression
+\end{itemize}
+
+\section{Complete Implementation (Recommended for Exams)}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        """Initialize DSU with n elements (0 to n-1)"""
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.size = [1] * n
+        self.num_components = n
+    
+    def find(self, x):
+        """Find representative with path compression"""
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        """Union by rank with path compression"""
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if root_x == root_y:
+            return False  # Already in same set
+        
+        # Union by rank
+        if self.rank[root_x] < self.rank[root_y]:
+            self.parent[root_x] = root_y
+            self.size[root_y] += self.size[root_x]
+        elif self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+            self.size[root_x] += self.size[root_y]
+        else:
+            self.parent[root_y] = root_x
+            self.size[root_x] += self.size[root_y]
+            self.rank[root_x] += 1
+        
+        self.num_components -= 1
+        return True  # Successfully merged
+    
+    def connected(self, x, y):
+        """Check if x and y are in same set"""
+        return self.find(x) == self.find(y)
+    
+    def get_size(self, x):
+        """Get size of component containing x"""
+        return self.size[self.find(x)]
+    
+    def count_components(self):
+        """Get total number of components"""
+        return self.num_components
+\end{lstlisting}
+
+\section{Time \& Space Complexity}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Operation} & \textbf{Time} & \textbf{Space} \\
+\hline
+Initialization & $O(n)$ & $O(n)$ \\
+\hline
+Find (optimized) & $O(\alpha(n))$ & $O(1)$ \\
+\hline
+Union (optimized) & $O(\alpha(n))$ & $O(1)$ \\
+\hline
+Connected & $O(\alpha(n))$ & $O(1)$ \\
+\hline
+\end{tabular}
+\caption{Complexity with both optimizations}
+\end{table}
+
+\textbf{Note:} $\alpha(n)$ = Inverse Ackermann $\approx$ constant ($\leq 4$ for all practical $n$)
+
+\section{Application 1: Count Connected Components}
+
+\begin{lstlisting}
+def count_components(n, edges):
+    """
+    n: number of nodes (0 to n-1)
+    edges: list of [u, v] pairs
+    Returns: number of connected components
+    """
+    dsu = DSU(n)
+    
+    for u, v in edges:
+        dsu.union(u, v)
+    
+    return dsu.count_components()
+
+# Example usage
+n = 5
+edges = [[0, 1], [1, 2], [3, 4]]
+print(count_components(n, edges))  # Output: 2
+\end{lstlisting}
+
+\section{Application 2: Detect Cycle in Undirected Graph}
+
+\begin{lstlisting}
+def has_cycle(n, edges):
+    """
+    Returns True if graph has cycle, False otherwise
+    """
+    dsu = DSU(n)
+    
+    for u, v in edges:
+        # If u and v already in same set, adding edge creates cycle
+        if dsu.connected(u, v):
+            return True
+        dsu.union(u, v)
+    
+    return False
+
+# Example usage
+n = 4
+edges = [[0, 1], [1, 2], [2, 0], [2, 3]]
+print(has_cycle(n, edges))  # Output: True (0-1-2-0 is cycle)
+\end{lstlisting}
+
+\section{Application 3: Kruskal's Minimum Spanning Tree}
+
+\begin{lstlisting}
+def kruskal_mst(n, edges):
+    """
+    n: number of nodes
+    edges: list of [u, v, weight]
+    Returns: (total_weight, mst_edges)
+    """
+    # Sort edges by weight
+    edges.sort(key=lambda x: x[2])
+    
+    dsu = DSU(n)
+    total_weight = 0
+    mst_edges = []
+    
+    for u, v, weight in edges:
+        # Add edge if it doesn't create cycle
+        if not dsu.connected(u, v):
+            dsu.union(u, v)
+            total_weight += weight
+            mst_edges.append([u, v, weight])
+            
+            # Stop if we have n-1 edges
+            if len(mst_edges) == n - 1:
+                break
+    
+    return total_weight, mst_edges
+
+# Example usage
+n = 4
+edges = [[0,1,10], [0,2,6], [0,3,5], [1,3,15], [2,3,4]]
+weight, mst = kruskal_mst(n, edges)
+print(f"MST weight: {weight}")  # Output: 19
+print(f"MST edges: {mst}")
+\end{lstlisting}
+
+\section{Application 4: Number of Islands (LeetCode 200)}
+
+\begin{lstlisting}
+def num_islands(grid):
+    """
+    grid: 2D list of '1' (land) and '0' (water)
+    Returns: number of islands
+    """
+    if not grid or not grid[0]:
+        return 0
+    
+    m, n = len(grid), len(grid[0])
+    dsu = DSU(m * n)
+    
+    # Convert 2D coordinates to 1D index
+    def get_index(i, j):
+        return i * n + j
+    
+    # Connect adjacent land cells
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == '1':
+                # Check right neighbor
+                if j + 1 < n and grid[i][j + 1] == '1':
+                    dsu.union(get_index(i, j), get_index(i, j + 1))
+                # Check down neighbor
+                if i + 1 < m and grid[i + 1][j] == '1':
+                    dsu.union(get_index(i, j), get_index(i + 1, j))
+    
+    # Count components (only land cells)
+    islands = set()
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == '1':
+                islands.add(dsu.find(get_index(i, j)))
+    
+    return len(islands)
+
+# Example usage
+grid = [
+    ['1', '1', '0', '0', '0'],
+    ['1', '1', '0', '0', '0'],
+    ['0', '0', '1', '0', '0'],
+    ['0', '0', '0', '1', '1']
+]
+print(num_islands(grid))  # Output: 3
+\end{lstlisting}
+
+\section{Application 5: Check if Graph is Bipartite}
+
+\begin{lstlisting}
+def is_bipartite(n, edges):
+    """
+    Uses DSU to check if graph can be 2-colored
+    Returns True if bipartite, False otherwise
+    """
+    dsu = DSU(2 * n)  # Each node has 2 versions (0-side, 1-side)
+    
+    for u, v in edges:
+        # If u and v in same set, not bipartite
+        if dsu.connected(u, v):
+            return False
+        
+        # Connect u with opposite side of v
+        # Connect v with opposite side of u
+        dsu.union(u, v + n)
+        dsu.union(v, u + n)
+    
+    return True
+
+# Example usage
+n = 4
+edges = [[0,1], [1,2], [2,3], [3,0]]
+print(is_bipartite(n, edges))  # Output: True (square is bipartite)
+
+edges2 = [[0,1], [1,2], [2,0]]
+print(is_bipartite(3, edges2))  # Output: False (triangle not bipartite)
+\end{lstlisting}
+
+\section{Application 6: Redundant Connection}
+
+\begin{lstlisting}
+def find_redundant_connection(edges):
+    """
+    Find edge that can be removed to make tree
+    edges: list of [u, v] pairs (1-indexed)
+    Returns: the redundant edge
+    """
+    n = len(edges)
+    dsu = DSU(n + 1)  # 1-indexed
+    
+    for u, v in edges:
+        if dsu.connected(u, v):
+            return [u, v]  # This edge creates cycle
+        dsu.union(u, v)
+    
+    return []
+
+# Example usage
+edges = [[1,2], [1,3], [2,3]]
+print(find_redundant_connection(edges))  # Output: [2, 3]
+\end{lstlisting}
+
+\section{Application 7: Accounts Merge}
+
+\begin{lstlisting}
+def accounts_merge(accounts):
+    """
+    accounts: list of [name, email1, email2, ...]
+    Merge accounts with common emails
+    """
+    from collections import defaultdict
+    
+    # Map email to index
+    email_to_id = {}
+    email_to_name = {}
+    idx = 0
+    
+    for account in accounts:
+        name = account[0]
+        for email in account[1:]:
+            if email not in email_to_id:
+                email_to_id[email] = idx
+                email_to_name[email] = name
+                idx += 1
+    
+    dsu = DSU(len(email_to_id))
+    
+    # Union emails from same account
+    for account in accounts:
+        first_email = account[1]
+        first_id = email_to_id[first_email]
+        
+        for email in account[2:]:
+            dsu.union(first_id, email_to_id[email])
+    
+    # Group emails by component
+    components = defaultdict(list)
+    for email, email_id in email_to_id.items():
+        root = dsu.find(email_id)
+        components[root].append(email)
+    
+    # Format result
+    result = []
+    for emails in components.values():
+        name = email_to_name[emails[0]]
+        result.append([name] + sorted(emails))
+    
+    return result
+
+# Example usage
+accounts = [
+    ["John", "john@mail.com", "john_work@mail.com"],
+    ["John", "john@mail.com", "john_home@mail.com"],
+    ["Mary", "mary@mail.com"]
+]
+print(accounts_merge(accounts))
+\end{lstlisting}
+
+\section{Important Properties}
+
+\begin{itemize}
+    \item \textbf{Disjoint:} Sets never overlap
+    \item \textbf{Representative:} Each set has unique root
+    \item \textbf{Idempotent:} \texttt{union(x, x)} has no effect
+    \item \textbf{Commutative:} \texttt{union(x, y) = union(y, x)}
+    \item \textbf{Cannot split:} Once merged, cannot separate sets
+    \item \textbf{Cannot delete:} Cannot remove individual elements
+\end{itemize}
+
+\section{Common Mistakes \& How to Avoid Them}
+
+\begin{enumerate}
+    \item \textbf{Forgetting initialization}
+    \begin{lstlisting}
+# WRONG: parent not initialized
+self.parent = []
+
+# RIGHT: initialize properly
+self.parent = list(range(n))
+    \end{lstlisting}
+    
+    \item \textbf{Comparing elements instead of roots}
+    \begin{lstlisting}
+# WRONG
+if x == y:
+    return
+
+# RIGHT
+if self.find(x) == self.find(y):
+    return
+    \end{lstlisting}
+    
+    \item \textbf{Not using path compression}
+    \begin{lstlisting}
+# WRONG: no path compression
+def find(self, x):
+    while self.parent[x] != x:
+        x = self.parent[x]
+    return x
+
+# RIGHT: with path compression
+def find(self, x):
+    if self.parent[x] != x:
+        self.parent[x] = self.find(self.parent[x])
+    return self.parent[x]
+    \end{lstlisting}
+    
+    \item \textbf{Index out of bounds}
+    \begin{lstlisting}
+# If nodes are 1-indexed
+dsu = DSU(n + 1)  # Create n+1 elements
+
+# If nodes are 0-indexed
+dsu = DSU(n)  # Create n elements
+    \end{lstlisting}
+\end{enumerate}
+
+\section{Quick Tips for Exams}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!75!black,title=Exam Strategy]
+\begin{enumerate}
+    \item Always use \textbf{both optimizations} (path compression + union by rank)
+    \item Remember: \texttt{parent = list(range(n))} for initialization
+    \item For graph problems with $n$ nodes, create DSU with size $n$
+    \item Check if 0-indexed or 1-indexed (adjust DSU size accordingly)
+    \item Use \texttt{connected(x, y)} before \texttt{union(x, y)} to detect cycles
+    \item Return \texttt{count\_components()} for counting components
+    \item For 2D grids: convert \texttt{(i, j)} to \texttt{i * cols + j}
+\end{enumerate}
+\end{tcolorbox}
+
+\section{Common Problem Patterns}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Problem Type} & \textbf{Solution Pattern} \\
+\hline
+Connected Components & Initialize DSU, union all edges, count components \\
+\hline
+Cycle Detection & If \texttt{connected(u, v)} before union, cycle exists \\
+\hline
+MST (Kruskal) & Sort edges by weight, union if not connected \\
+\hline
+Graph Connectivity & Check \texttt{connected(u, v)} after processing edges \\
+\hline
+Islands/Regions & Convert 2D to 1D, union adjacent cells \\
+\hline
+Account/Email Merge & Map items to IDs, union related items, group by root \\
+\hline
+Bipartite Check & Use $2n$ nodes, union opposites \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Practice Problems}
+
+\begin{enumerate}
+    \item \textbf{LeetCode 200:} Number of Islands
+    \item \textbf{LeetCode 547:} Number of Provinces
+    \item \textbf{LeetCode 684:} Redundant Connection
+    \item \textbf{LeetCode 721:} Accounts Merge
+    \item \textbf{LeetCode 990:} Satisfiability of Equality Equations
+    \item \textbf{LeetCode 1319:} Number of Operations to Make Network Connected
+    \item \textbf{LeetCode 1584:} Min Cost to Connect All Points (Kruskal's MST)
+    \item \textbf{LeetCode 128:} Longest Consecutive Sequence (can use DSU)
+\end{enumerate}
+
+\section{Template for Quick Reference}
+
+\begin{lstlisting}
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px
+        self.parent[py] = px
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1
+        return True
+    
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+\end{lstlisting}
+
+\vfill
+
+\begin{center}
+\textbf{Remember:} DSU is your go-to for dynamic connectivity problems!\\
+\textit{Good luck with your exam!}
+\end{center}
+
+\end{document}
