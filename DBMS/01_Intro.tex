@@ -1,0 +1,523 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, positioning}
+
+% Title page information
+\title{Introduction to DBMS}
+\subtitle{Understanding the Foundation of DBMS}
+\author{Nafiul Islam}
+
+\date{\today}
+
+\begin{document}
+
+% Title slide
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Table of contents
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+
+% Section 1
+\section{Introduction to Databases}
+
+\begin{frame}{What is a Database?}
+    \begin{definition}
+        A \textbf{database} is an organized collection of structured data stored electronically in a computer system, designed to be easily accessed, managed, and updated.
+    \end{definition}
+    
+    \vspace{0.5cm}
+    
+    \begin{block}{Key Characteristics}
+        \begin{itemize}
+            \item Organized and structured data storage
+            \item Persistent storage of information
+            \item Efficient data retrieval and manipulation
+            \item Support for multiple users and applications
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Evolution of Data Storage}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \textbf{Traditional Approach:}
+        \begin{itemize}
+            \item Paper-based records
+            \item File cabinets
+            \item Manual indexing
+            \item Limited accessibility
+        \end{itemize}
+        
+        \column{0.5\textwidth}
+        \textbf{Modern Database Systems:}
+        \begin{itemize}
+            \item Digital storage
+            \item Automated indexing
+            \item Concurrent access
+            \item Real-time updates
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+% Section 2
+\section{Relational Databases}
+
+\begin{frame}{Relational Database Concept}
+    \begin{block}{Definition}
+        A \textbf{relational database} organizes data into tables (relations) consisting of rows and columns, where relationships between data items are established through common fields.
+    \end{block}
+    
+    \vspace{0.5cm}
+    
+    \textbf{Key Components:}
+    \begin{itemize}
+        \item \textbf{Tables (Relations):} Store data in rows and columns
+        \item \textbf{Rows (Tuples):} Individual records or entries
+        \item \textbf{Columns (Attributes):} Fields or properties of data
+        \item \textbf{Primary Keys:} Unique identifiers for records
+        \item \textbf{Foreign Keys:} Link tables together
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Example: Student Database}
+    \begin{example}
+        \centering
+        \textbf{Students Table}
+        
+        \vspace{0.3cm}
+        
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \textbf{Student\_ID} & \textbf{Name} & \textbf{Major} & \textbf{Year} \\
+            \hline
+            0152410071 & Samiha Mahzabin & Data Science & 2024 \\
+            \hline
+            0112410001 & Ahmed Khan & CS & 2024 \\
+            \hline
+            0152330002 & Sara Ali & Data Science & 2023 \\
+            \hline
+        \end{tabular}
+    \end{example}
+    
+    \vspace{0.5cm}
+    
+    \begin{alertblock}{Note}
+        Student\_ID serves as the \textbf{Primary Key}, uniquely identifying each student.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Properties of Relational Databases}
+    \begin{enumerate}
+        \item \textbf{Data Independence:} Physical storage is separate from logical organization
+        \item \textbf{Structured Query Language (SQL):} Standard language for querying and managing data
+        \item \textbf{ACID Properties:}
+        \begin{itemize}
+            \item \textbf{A}tomicity: All or nothing transactions
+            \item \textbf{C}onsistency: Data integrity maintained
+            \item \textbf{I}solation: Concurrent transactions don't interfere
+            \item \textbf{D}urability: Committed data is permanent
+        \end{itemize}
+        \item \textbf{Normalization:} Reduces data redundancy
+    \end{enumerate}
+\end{frame}
+
+% Section 3
+\section{Necessity of Database Management Systems}
+
+\begin{frame}{Why Do We Need DBMS?}
+    \begin{block}{Database Management System (DBMS)}
+        Software that provides an interface between users/applications and the database, facilitating data creation, maintenance, and manipulation.
+    \end{block}
+    
+    \vspace{0.5cm}
+    
+    \textbf{Problems without DBMS:}
+    \begin{itemize}
+        \item Data redundancy and inconsistency
+        \item Difficulty in accessing data
+        \item Data isolation
+        \item Integrity problems
+        \item Atomicity problems
+        \item Concurrent access anomalies
+        \item Security problems
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Advantages of DBMS}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \textbf{Data Management:}
+        \begin{itemize}
+            \item Centralized control
+            \item Reduced redundancy
+            \item Data consistency
+            \item Data integrity
+        \end{itemize}
+        
+        \column{0.5\textwidth}
+        \textbf{Operational Benefits:}
+        \begin{itemize}
+            \item Concurrent access
+            \item Backup \& recovery
+            \item Security controls
+            \item Data independence
+        \end{itemize}
+    \end{columns}
+    
+    \vspace{0.5cm}
+    
+    \begin{exampleblock}{Real-world Impact}
+        DBMS enables applications like online banking, e-commerce, social media, and enterprise resource planning systems to function efficiently and reliably.
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{DBMS vs File System}
+    \centering
+    \begin{tabular}{|p{4cm}|p{3cm}|p{3cm}|}
+        \hline
+        \textbf{Feature} & \textbf{File System} & \textbf{DBMS} \\
+        \hline
+        Data Redundancy & High & Minimal \\
+        \hline
+        Data Consistency & Poor & Excellent \\
+        \hline
+        Data Sharing & Limited & Extensive \\
+        \hline
+        Security & Basic & Advanced \\
+        \hline
+        Backup/Recovery & Manual & Automated \\
+        \hline
+        Query Language & None & SQL \\
+        \hline
+    \end{tabular}
+\end{frame}
+
+% Section 4
+\section{Data Models}
+
+\begin{frame}{What is a Data Model?}
+    \begin{definition}
+        A \textbf{data model} is a conceptual framework that defines how data is structured, stored, organized, and manipulated within a database system.
+    \end{definition}
+    
+    \vspace{0.5cm}
+    
+    \begin{block}{Purpose of Data Models}
+        \begin{itemize}
+            \item Provide abstraction of real-world entities
+            \item Define relationships between data elements
+            \item Specify constraints and rules
+            \item Guide database design and implementation
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Types of Data Models}
+    \textbf{1. Hierarchical Data Model}
+    \begin{itemize}
+        \item Tree-like structure with parent-child relationships
+        \item Example: File systems, organizational charts
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    
+    \textbf{2. Network Data Model}
+    \begin{itemize}
+        \item Graph structure with many-to-many relationships
+        \item More flexible than hierarchical model
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    
+    \textbf{3. Relational Data Model}
+    \begin{itemize}
+        \item Data organized in tables (most popular)
+        \item Based on mathematical set theory
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Types of Data Models (Continued)}
+    \textbf{4. Object-Oriented Data Model}
+    \begin{itemize}
+        \item Data represented as objects (like in OOP)
+        \item Supports inheritance and encapsulation
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    
+    \textbf{5. NoSQL Data Models}
+    \begin{itemize}
+        \item \textbf{Document-based:} JSON/BSON documents (MongoDB)
+        \item \textbf{Key-Value:} Simple key-value pairs (Redis)
+        \item \textbf{Column-family:} Wide-column stores (Cassandra)
+        \item \textbf{Graph:} Nodes and edges (Neo4j)
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    
+    \textbf{6. Entity-Relationship (ER) Model}
+    \begin{itemize}
+        \item Conceptual design tool
+        \item Uses entities, attributes, and relationships
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Data Model Abstraction Levels}
+    \begin{enumerate}
+        \item \textbf{Conceptual Level (External Schema)}
+        \begin{itemize}
+            \item User's view of the database
+            \item What data users can access
+        \end{itemize}
+        
+        \vspace{0.3cm}
+        
+        \item \textbf{Logical Level (Conceptual Schema)}
+        \begin{itemize}
+            \item Overall database structure
+            \item Tables, relationships, constraints
+        \end{itemize}
+        
+        \vspace{0.3cm}
+        
+        \item \textbf{Physical Level (Internal Schema)}
+        \begin{itemize}
+            \item How data is actually stored
+            \item Indexes, file organization, storage
+        \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+% Section 5
+\section{Database Administration}
+
+\begin{frame}{Role of Database Administrator (DBA)}
+    \begin{block}{Database Administrator}
+        A professional responsible for the design, implementation, maintenance, and security of an organization's databases.
+    \end{block}
+    
+    \vspace{0.5cm}
+    
+    \textbf{Key Responsibilities:}
+    \begin{itemize}
+        \item Database design and implementation
+        \item Performance monitoring and tuning
+        \item Backup and recovery operations
+        \item Security management and access control
+        \item Database maintenance and upgrades
+        \item Capacity planning
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Database Administration Tasks}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \textbf{Planning \& Design:}
+        \begin{itemize}
+            \item Schema design
+            \item Capacity planning
+            \item Disaster recovery planning
+        \end{itemize}
+        
+        \vspace{0.3cm}
+        
+        \textbf{Operations:}
+        \begin{itemize}
+            \item Performance tuning
+            \item Query optimization
+            \item Index management
+        \end{itemize}
+        
+        \column{0.5\textwidth}
+        \textbf{Security:}
+        \begin{itemize}
+            \item User authentication
+            \item Access controls
+            \item Encryption
+        \end{itemize}
+        
+        \vspace{0.3cm}
+        
+        \textbf{Maintenance:}
+        \begin{itemize}
+            \item Backups
+            \item Updates/patches
+            \item Data archival
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Database Security Considerations}
+    \begin{alertblock}{Security Threats}
+        \begin{itemize}
+            \item Unauthorized access
+            \item SQL injection attacks
+            \item Data breaches
+            \item Insider threats
+        \end{itemize}
+    \end{alertblock}
+    
+    \vspace{0.5cm}
+    
+    \textbf{Security Measures:}
+    \begin{enumerate}
+        \item Authentication and authorization
+        \item Role-based access control (RBAC)
+        \item Data encryption (at rest and in transit)
+        \item Audit logging and monitoring
+        \item Regular security assessments
+        \item Backup encryption
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Database Performance Management}
+    \textbf{Performance Optimization Techniques:}
+    
+    \begin{itemize}
+        \item \textbf{Indexing:} Create appropriate indexes for faster queries
+        \item \textbf{Query Optimization:} Rewrite inefficient queries
+        \item \textbf{Database Tuning:} Adjust configuration parameters
+        \item \textbf{Partitioning:} Split large tables for better performance
+        \item \textbf{Caching:} Store frequently accessed data in memory
+        \item \textbf{Regular Maintenance:} Update statistics, rebuild indexes
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    
+    \begin{exampleblock}{Monitoring}
+        DBAs use monitoring tools to track CPU usage, memory consumption, disk I/O, and query performance to identify bottlenecks.
+    \end{exampleblock}
+\end{frame}
+
+% Section 6
+\section{Importance of DBMS}
+
+\begin{frame}{Why DBMS Matters in Modern World}
+    \textbf{Real-World Applications:}
+    
+    \begin{itemize}
+        \item \textbf{Banking:} Account management, transactions, ATM systems
+        \item \textbf{E-commerce:} Product catalogs, order processing, customer data
+        \item \textbf{Healthcare:} Patient records, medical history, appointments
+        \item \textbf{Education:} Student information systems, learning management
+        \item \textbf{Social Media:} User profiles, posts, connections
+        \item \textbf{Data Science:} Data warehouses, analytics, machine learning
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    
+    \begin{block}{For Data Science Students}
+        Understanding DBMS is crucial for data extraction, transformation, and analysis in data science projects.
+    \end{block}
+\end{frame}
+
+\begin{frame}{DBMS in Data Science}
+    \textbf{Key Connections:}
+    
+    \begin{enumerate}
+        \item \textbf{Data Collection \& Storage}
+        \begin{itemize}
+            \item Structured data storage for analysis
+            \item Integration with data pipelines
+        \end{itemize}
+        
+        \item \textbf{Data Preprocessing}
+        \begin{itemize}
+            \item SQL for data cleaning and transformation
+            \item Joining multiple data sources
+        \end{itemize}
+        
+        \item \textbf{Analytics \& Insights}
+        \begin{itemize}
+            \item Complex queries for pattern discovery
+            \item Aggregations and statistical calculations
+        \end{itemize}
+        
+        \item \textbf{Big Data Integration}
+        \begin{itemize}
+            \item NoSQL databases for unstructured data
+            \item Data warehouses for analytics
+        \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Learning Outcomes Achieved}
+    \begin{block}{Key Takeaways}
+        After this presentation, you should understand:
+    \end{block}
+    
+    \begin{itemize}
+        \item \checkmark The fundamental concept of databases and their evolution
+        \item \checkmark How relational databases organize and structure data
+        \item \checkmark Why Database Management Systems are essential for modern applications
+        \item \checkmark Different data models and when to use them
+        \item \checkmark The critical role of database administration
+        \item \checkmark The importance of DBMS in data science and various industries
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    
+    \begin{alertblock}{Remember}
+        DBMS is the backbone of data-driven applications and essential for any data science professional!
+    \end{alertblock}
+\end{frame}
+
+% Conclusion
+\section{Conclusion}
+
+\begin{frame}{Summary}
+    \textbf{What We Covered:}
+    
+    \begin{itemize}
+        \item Introduction to databases and their importance
+        \item Relational database concepts and structure
+        \item Necessity and advantages of DBMS
+        \item Various data models for different use cases
+        \item Database administration roles and responsibilities
+        \item Real-world applications and relevance to data science
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    
+    \begin{center}
+        \Large
+        \textbf{Questions?}
+    \end{center}
+\end{frame}
+
+\begin{frame}{References \& Further Reading}
+    \textbf{Recommended Resources:}
+    
+    \begin{itemize}
+        \item Database System Concepts - Silberschatz, Korth, Sudarshan
+        \item Fundamentals of Database Systems - Elmasri \& Navathe
+        \item SQL and Relational Theory - C.J. Date
+        \item Online: W3Schools SQL Tutorial, PostgreSQL Documentation
+    \end{itemize}
+    
+    \vspace{1cm}
+    
+    \begin{center}
+        \Large
+        \textbf{Thank You!}
+        
+        \vspace{0.5cm}
+        
+        \normalsize
+        Nafiul Islam \\
+        ID: 0152410070 \\
+        Data Science, UIU
+    \end{center}
+\end{frame}
+
+\end{document}
