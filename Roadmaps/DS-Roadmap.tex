@@ -1,0 +1,483 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{mdframed}
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+
+% ----- Colors -----
+\definecolor{primary}{HTML}{1A237E}
+\definecolor{secondary}{HTML}{283593}
+\definecolor{accent}{HTML}{3949AB}
+\definecolor{highlight}{HTML}{E8EAF6}
+\definecolor{beginner}{HTML}{C8E6C9}
+\definecolor{intermediate}{HTML}{FFF9C4}
+\definecolor{advanced}{HTML}{FFCCBC}
+\definecolor{lightgray}{HTML}{F5F5F5}
+\definecolor{darkgray}{HTML}{424242}
+\definecolor{teal}{HTML}{00796B}
+\definecolor{orange}{HTML}{E65100}
+
+% ----- Section Styling -----
+\titleformat{\section}{\large\bfseries\color{primary}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{secondary}}{}{0em}{}
+
+% ----- Header/Footer -----
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{primary}{\textbf{Data Science Learning Roadmap}}}
+\fancyhead[R]{\textcolor{darkgray}{\small Comprehensive Guide}}
+\fancyfoot[C]{\textcolor{darkgray}{\small \thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ----- Custom Environments -----
+\newmdenv[
+  backgroundcolor=highlight,
+  linecolor=accent,
+  linewidth=1.5pt,
+  roundcorner=5pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt
+]{infobox}
+
+\newmdenv[
+  backgroundcolor=beginner,
+  linecolor=teal,
+  linewidth=1pt,
+  roundcorner=4pt,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt
+]{phasebox}
+
+% ----- Document -----
+\begin{document}
+
+% ============================================================
+%  TITLE PAGE
+% ============================================================
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\Huge\bfseries\color{primary} Data Science\par}
+  {\Huge\bfseries\color{accent} Learning Roadmap\par}
+  \vspace{0.5cm}
+  \textcolor{darkgray}{\rule{0.6\linewidth}{1.5pt}}
+  \vspace{0.8cm}
+
+  {\large\color{darkgray} A Structured Guide from Beginner to Job-Ready}\par
+  \vspace{0.5cm}
+  {\normalsize\color{darkgray} Technologies · Tools · Languages · Time Estimates}\par
+
+  \vspace{2cm}
+
+  % Phase overview table
+  \begin{tabular}{ccccc}
+    \cellcolor{beginner}\textbf{Phase 1} &
+    \cellcolor{beginner!60}\textbf{Phase 2} &
+    \cellcolor{intermediate}\textbf{Phase 3} &
+    \cellcolor{intermediate!60}\textbf{Phase 4} &
+    \cellcolor{advanced}\textbf{Phase 5} \\[4pt]
+    \cellcolor{beginner}Foundations &
+    \cellcolor{beginner!60}Core DS &
+    \cellcolor{intermediate}ML \& AI &
+    \cellcolor{intermediate!60}Engineering &
+    \cellcolor{advanced}MLOps \& Cloud \\[4pt]
+    \cellcolor{beginner}{\small 4--6 wks} &
+    \cellcolor{beginner!60}{\small 6--8 wks} &
+    \cellcolor{intermediate}{\small 8--12 wks} &
+    \cellcolor{intermediate!60}{\small 6--8 wks} &
+    \cellcolor{advanced}{\small 6--8 wks} \\
+  \end{tabular}
+
+  \vspace{1cm}
+  \begin{infobox}
+    \centering
+    \textbf{Total Minimum Time:} $\sim$\textbf{30--42 weeks} (part-time, 2--3 hrs/day)\\
+    \small Dedicated full-time learners can complete this in \textbf{6--9 months}.
+  \end{infobox}
+
+  \vfill
+  {\small\color{darkgray} Designed for aspiring Data Scientists | 2024--2025 Edition}
+\end{titlepage}
+
+% ============================================================
+%  HOW TO USE THIS ROADMAP
+% ============================================================
+\section{How to Use This Roadmap}
+
+\begin{infobox}
+\textbf{Learning Approach:} Follow the phases in order. Each phase builds on the previous one. Do not skip Phase 1 and 2 — a strong foundation in Python, SQL, and statistics will make every subsequent topic easier to grasp.
+\end{infobox}
+
+\vspace{0.4cm}
+\noindent\textbf{Difficulty Legend:}
+
+\begin{tabular}{lll}
+  \cellcolor{beginner}\quad\quad & \textbf{Beginner} & Little to no prior knowledge required \\[4pt]
+  \cellcolor{intermediate}\quad\quad & \textbf{Intermediate} & Requires Phase 1--2 completion \\[4pt]
+  \cellcolor{advanced}\quad\quad & \textbf{Advanced} & Requires solid ML and coding background \\
+\end{tabular}
+
+% ============================================================
+%  PHASE 1
+% ============================================================
+\section{Phase 1 — Foundations \hfill \small\normalfont\color{teal}(Minimum: 4--6 Weeks)}
+
+\subsection{1.1 Python Programming \hfill \small\normalfont\color{darkgray}Beginner | 3--4 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Write clean Python code: variables, loops, functions, OOP, file I/O \\
+\midrule
+Core Topics & Data types, control flow, functions, list comprehensions, modules, classes, error handling, virtual environments \\
+Resources & \textit{Automate the Boring Stuff with Python} (free), Python.org docs, freeCodeCamp Python course \\
+Practice & Build 3 mini-projects: a calculator, a file organizer, a web scraper \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent\textit{Key libraries to install:} \texttt{pip, virtualenv, jupyter}
+
+\subsection{1.2 SQL \hfill \small\normalfont\color{darkgray}Beginner | 2--3 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Query, filter, aggregate, and join data from relational databases \\
+\midrule
+Core Topics & SELECT, WHERE, GROUP BY, HAVING, JOINs (inner/outer/left), subqueries, window functions, CTEs, indexes \\
+Databases & PostgreSQL (recommended), MySQL, SQLite \\
+Resources & SQLZoo (free), Mode SQL Tutorial, LeetCode SQL problems \\
+Practice & Solve 30 SQL problems on HackerRank or LeetCode \\
+\bottomrule
+\end{tabular}
+
+\subsection{1.3 Mathematics \& Statistics \hfill \small\normalfont\color{darkgray}Beginner--Intermediate | 3--4 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Understand the mathematical foundations behind ML algorithms \\
+\midrule
+Statistics & Mean, median, variance, standard deviation, probability distributions, hypothesis testing, p-values, A/B testing, Bayesian basics \\
+Linear Algebra & Vectors, matrices, dot products, matrix multiplication, eigenvalues \\
+Calculus & Derivatives, chain rule, gradients (for understanding backpropagation) \\
+Resources & Khan Academy (free), \textit{Statistics} by Freedman, 3Blue1Brown (YouTube) \\
+\bottomrule
+\end{tabular}
+
+% ============================================================
+%  PHASE 2
+% ============================================================
+\section{Phase 2 — Core Data Science \hfill \small\normalfont\color{teal}(Minimum: 6--8 Weeks)}
+
+\subsection{2.1 Data Manipulation with Pandas \& NumPy \hfill \small\normalfont\color{darkgray}2--3 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Clean, transform, and analyze structured datasets efficiently \\
+\midrule
+Pandas Topics & DataFrames, Series, indexing, filtering, groupby, merge/join, pivot tables, handling missing data, apply/map/lambda \\
+NumPy Topics & Arrays, broadcasting, vectorized operations, random number generation, linear algebra operations \\
+Resources & Official Pandas docs, \textit{Python for Data Analysis} by Wes McKinney \\
+Practice & Clean 3 real-world datasets from Kaggle \\
+\bottomrule
+\end{tabular}
+
+\subsection{2.2 Data Visualization \hfill \small\normalfont\color{darkgray}2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Create clear, informative charts for exploratory analysis and reporting \\
+\midrule
+Python Tools & \textbf{Matplotlib} (foundational), \textbf{Seaborn} (statistical plots), \textbf{Plotly} (interactive), \textbf{Altair} \\
+BI Tools & \textbf{Tableau} or \textbf{Power BI} — learn one for business dashboards \\
+Key Charts & Bar, line, scatter, histogram, heatmap, box plot, pairplot \\
+Resources & Seaborn gallery, Tableau Public tutorials, \textit{Storytelling with Data} book \\
+\bottomrule
+\end{tabular}
+
+\subsection{2.3 Exploratory Data Analysis (EDA) \hfill \small\normalfont\color{darkgray}1--2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Develop intuition about data before modeling \\
+\midrule
+Topics & Distribution analysis, outlier detection, correlation matrices, feature relationships, data profiling \\
+Tools & \texttt{pandas-profiling}, \texttt{sweetviz}, Jupyter Notebooks \\
+Practice & Complete 2 full EDA projects on Kaggle datasets \\
+\bottomrule
+\end{tabular}
+
+\subsection{2.4 Version Control with Git \hfill \small\normalfont\color{darkgray}1 Week}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Track code changes and collaborate on projects \\
+\midrule
+Topics & init, clone, add, commit, push, pull, branching, merging, GitHub PRs \\
+Resources & GitHub's official Git guide, Atlassian Git tutorials \\
+\bottomrule
+\end{tabular}
+
+% ============================================================
+%  PHASE 3
+% ============================================================
+\section{Phase 3 — Machine Learning \& AI \hfill \small\normalfont\color{teal}(Minimum: 8--12 Weeks)}
+
+\subsection{3.1 Classical Machine Learning \hfill \small\normalfont\color{darkgray}Intermediate | 4--5 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Build, evaluate, and tune standard ML models \\
+\midrule
+Algorithms & Linear/Logistic Regression, Decision Trees, Random Forest, SVM, KNN, Naive Bayes, K-Means, DBSCAN, PCA \\
+Framework & \textbf{Scikit-learn} — the gold standard for classical ML \\
+Key Concepts & Train/test split, cross-validation, overfitting/underfitting, bias-variance tradeoff, hyperparameter tuning (GridSearchCV, RandomizedSearchCV) \\
+Metrics & Accuracy, Precision, Recall, F1, AUC-ROC, RMSE, MAE, R\textsuperscript{2} \\
+Resources & Scikit-learn docs, \textit{Hands-On ML} by Aurélien Géron, fast.ai \\
+Practice & Complete the Titanic and House Prices Kaggle competitions \\
+\bottomrule
+\end{tabular}
+
+\subsection{3.2 Advanced ML — Gradient Boosting \hfill \small\normalfont\color{darkgray}Intermediate | 1--2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Master the most powerful tabular data algorithms \\
+\midrule
+Libraries & \textbf{XGBoost}, \textbf{LightGBM}, \textbf{CatBoost} \\
+Topics & Boosting concept, tree depth, learning rate, early stopping, feature importance, SHAP values \\
+Practice & Use LightGBM on a Kaggle tabular competition \\
+\bottomrule
+\end{tabular}
+
+\subsection{3.3 Deep Learning \hfill \small\normalfont\color{darkgray}Intermediate--Advanced | 4--6 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Understand and build neural networks for vision, text, and more \\
+\midrule
+Concepts & Neurons, layers, activation functions, backpropagation, optimizers (SGD, Adam), batch normalization, dropout, regularization \\
+Architectures & CNNs (image), RNNs/LSTMs (sequential), Transformers (NLP), Autoencoders \\
+Frameworks & \textbf{PyTorch} (recommended for research) or \textbf{TensorFlow/Keras} (production-friendly) \\
+Resources & fast.ai (practical), DeepLearning.ai Coursera specialization, PyTorch docs \\
+Practice & Image classifier (CIFAR-10), sentiment analysis project \\
+\bottomrule
+\end{tabular}
+
+\subsection{3.4 Natural Language Processing (NLP) \hfill \small\normalfont\color{darkgray}Advanced | 2--3 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Work with text data: classification, generation, and search \\
+\midrule
+Topics & Tokenization, TF-IDF, word embeddings (Word2Vec, GloVe), BERT, GPT, fine-tuning LLMs, RAG pipelines \\
+Libraries & \textbf{Hugging Face Transformers}, \texttt{spaCy}, \texttt{NLTK}, LangChain \\
+Practice & Fine-tune a BERT model for text classification \\
+\bottomrule
+\end{tabular}
+
+% ============================================================
+%  PHASE 4
+% ============================================================
+\section{Phase 4 — Data Engineering Fundamentals \hfill \small\normalfont\color{teal}(Minimum: 6--8 Weeks)}
+
+\subsection{4.1 Big Data with Apache Spark \hfill \small\normalfont\color{darkgray}Intermediate | 2--3 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Process datasets too large for a single machine \\
+\midrule
+Topics & RDDs, DataFrames, Spark SQL, transformations vs.\ actions, partitioning, PySpark API \\
+Resources & \textit{Learning Spark} book, Databricks free community edition \\
+\bottomrule
+\end{tabular}
+
+\subsection{4.2 Databases \hfill \small\normalfont\color{darkgray}Beginner--Intermediate | 1--2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Relational & PostgreSQL, MySQL — schema design, indexing, transactions \\
+\midrule
+NoSQL & \textbf{MongoDB} — documents, collections, aggregation pipeline \\
+Cloud Warehouses & \textbf{BigQuery} (Google), \textbf{Snowflake}, \textbf{Redshift} (AWS) — columnar storage, partitioning, query optimization \\
+\bottomrule
+\end{tabular}
+
+\subsection{4.3 Data Pipelines \& Orchestration \hfill \small\normalfont\color{darkgray}Intermediate | 2--3 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Build automated, reliable data pipelines \\
+\midrule
+Orchestration & \textbf{Apache Airflow} — DAGs, operators, scheduling, monitoring \\
+Transformation & \textbf{dbt (data build tool)} — SQL-based transformations, testing, documentation \\
+Streaming & \textbf{Apache Kafka} — producers, consumers, topics, real-time processing \\
+Resources & Airflow official docs, dbt Learn (free), Confluent Kafka tutorials \\
+\bottomrule
+\end{tabular}
+
+% ============================================================
+%  PHASE 5
+% ============================================================
+\section{Phase 5 — MLOps, Cloud \& Deployment \hfill \small\normalfont\color{teal}(Minimum: 6--8 Weeks)}
+
+\subsection{5.1 Cloud Platforms \hfill \small\normalfont\color{darkgray}Advanced | 2--3 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3.5cm} p{11cm}}
+\toprule
+\textbf{AWS} & S3 (storage), EC2 (compute), SageMaker (ML platform), Redshift, Lambda \\
+\midrule
+\textbf{Google Cloud} & BigQuery, Vertex AI, Cloud Storage, Cloud Functions \\
+\midrule
+\textbf{Azure} & Azure ML, Blob Storage, Azure Databricks \\
+\midrule
+Recommendation & Pick \textbf{one cloud} and get its associate-level certification \\
+\bottomrule
+\end{tabular}
+
+\subsection{5.2 Containerization \& DevOps \hfill \small\normalfont\color{darkgray}Intermediate | 1--2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Docker & Dockerfiles, images, containers, docker-compose, pushing to Docker Hub \\
+\midrule
+Kubernetes & Pods, deployments, services — basics only for data scientists \\
+\midrule
+CI/CD & GitHub Actions — automate testing and deployment \\
+\bottomrule
+\end{tabular}
+
+\subsection{5.3 Model Deployment \hfill \small\normalfont\color{darkgray}Intermediate | 1--2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Serve ML models as APIs or web services \\
+\midrule
+Tools & \textbf{FastAPI} or \textbf{Flask} for REST APIs, \textbf{Streamlit} for quick demos, \textbf{BentoML} for production serving \\
+Practice & Deploy a trained scikit-learn model as a REST API with Docker \\
+\bottomrule
+\end{tabular}
+
+\subsection{5.4 Experiment Tracking \& MLOps \hfill \small\normalfont\color{darkgray}Advanced | 2 Weeks}
+
+\begin{tabular}{>{\bfseries}p{3cm} p{11.5cm}}
+\toprule
+Goal & Manage the ML lifecycle: experiments, models, and monitoring \\
+\midrule
+Tools & \textbf{MLflow} — experiment tracking, model registry, serving \\
+ & \textbf{Weights \& Biases (W\&B)} — metrics logging, hyperparameter sweeps \\
+ & \textbf{DVC} — data version control \\
+Monitoring & \textbf{Evidently AI}, \textbf{Grafana} — detect data drift and model degradation \\
+\bottomrule
+\end{tabular}
+
+% ============================================================
+%  SUMMARY TABLE
+% ============================================================
+\newpage
+\section{Complete Summary: Skills, Tools \& Time}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm} X >{\centering\arraybackslash}p{3cm} >{\centering\arraybackslash}p{2.5cm}}
+\toprule
+\rowcolor{primary}\textcolor{white}{\textbf{Skill}} & \textcolor{white}{\textbf{Key Tools / Libraries}} & \textcolor{white}{\textbf{Min. Time}} & \textcolor{white}{\textbf{Level}} \\
+\midrule
+\rowcolor{lightgray}Python & Python 3, Jupyter, pip & 3--4 weeks & \cellcolor{beginner}Beginner \\
+SQL & PostgreSQL, SQLite, MySQL & 2--3 weeks & \cellcolor{beginner}Beginner \\
+\rowcolor{lightgray}Math \& Stats & Khan Academy, NumPy & 3--4 weeks & \cellcolor{beginner}Beginner \\
+Pandas \& NumPy & pandas, numpy & 2--3 weeks & \cellcolor{beginner}Beginner \\
+\rowcolor{lightgray}Data Visualization & Matplotlib, Seaborn, Plotly, Tableau & 2 weeks & \cellcolor{beginner}Beginner \\
+Git \& GitHub & git, GitHub & 1 week & \cellcolor{beginner}Beginner \\
+\rowcolor{lightgray}Classical ML & Scikit-learn & 4--5 weeks & \cellcolor{intermediate}Intermediate \\
+Gradient Boosting & XGBoost, LightGBM, CatBoost & 1--2 weeks & \cellcolor{intermediate}Intermediate \\
+\rowcolor{lightgray}Deep Learning & PyTorch or TensorFlow & 4--6 weeks & \cellcolor{intermediate}Intermediate \\
+NLP / LLMs & Hugging Face, spaCy, LangChain & 2--3 weeks & \cellcolor{advanced}Advanced \\
+\rowcolor{lightgray}Big Data & PySpark, Databricks & 2--3 weeks & \cellcolor{intermediate}Intermediate \\
+Databases & PostgreSQL, MongoDB, BigQuery & 1--2 weeks & \cellcolor{intermediate}Intermediate \\
+\rowcolor{lightgray}Pipelines & Airflow, dbt, Kafka & 2--3 weeks & \cellcolor{intermediate}Intermediate \\
+Cloud (pick one) & AWS / GCP / Azure & 2--3 weeks & \cellcolor{advanced}Advanced \\
+\rowcolor{lightgray}Docker & Docker, docker-compose & 1--2 weeks & \cellcolor{intermediate}Intermediate \\
+Model Deployment & FastAPI, Flask, Streamlit & 1--2 weeks & \cellcolor{intermediate}Intermediate \\
+\rowcolor{lightgray}MLOps & MLflow, W\&B, DVC & 2 weeks & \cellcolor{advanced}Advanced \\
+\midrule
+\rowcolor{primary}\textcolor{white}{\textbf{TOTAL}} & & \textcolor{white}{\textbf{$\sim$30--42 weeks}} & \\
+\bottomrule
+\end{tabularx}
+
+% ============================================================
+%  RECOMMENDED LEARNING RESOURCES
+% ============================================================
+\section{Top Recommended Resources}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.5cm} X p{3cm}}
+\toprule
+\rowcolor{primary}\textcolor{white}{\textbf{Resource}} & \textcolor{white}{\textbf{What it Covers}} & \textcolor{white}{\textbf{Cost}} \\
+\midrule
+\rowcolor{lightgray}fast.ai & Practical Deep Learning, top-down approach & Free \\
+DeepLearning.ai & ML, DL, MLOps Specializations & Paid / Audit \\
+\rowcolor{lightgray}Kaggle & Datasets, competitions, micro-courses & Free \\
+CS229 Stanford & Machine Learning foundations (lecture notes) & Free \\
+\rowcolor{lightgray}Hands-On ML (Géron) & Scikit-learn, TensorFlow, end-to-end & Book \\
+Full Stack Deep Learning & Production ML systems & Free \\
+\rowcolor{lightgray}dbt Learn & dbt fundamentals & Free \\
+Databricks Academy & Spark fundamentals & Free \\
+\bottomrule
+\end{tabularx}
+
+% ============================================================
+%  PORTFOLIO PROJECTS
+% ============================================================
+\section{Recommended Portfolio Projects}
+
+\begin{infobox}
+\textbf{Employers look for evidence of end-to-end thinking.} Each project should include data collection/cleaning, EDA, modeling, evaluation, and ideally deployment.
+\end{infobox}
+
+\vspace{0.3cm}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm} >{\bfseries}p{4cm} X >{\centering\arraybackslash}p{2cm}}
+\toprule
+\rowcolor{primary}\textcolor{white}{\textbf{\#}} & \textcolor{white}{\textbf{Project}} & \textcolor{white}{\textbf{Skills Demonstrated}} & \textcolor{white}{\textbf{Phase}} \\
+\midrule
+\rowcolor{lightgray}1 & EDA on a public dataset & Python, Pandas, Seaborn, storytelling & 2 \\
+2 & House price prediction & Regression, feature engineering, Scikit-learn & 3 \\
+\rowcolor{lightgray}3 & Customer churn classifier & Classification, XGBoost, SHAP, evaluation & 3 \\
+4 & Sentiment analysis API & NLP, BERT, FastAPI, Docker & 3--5 \\
+\rowcolor{lightgray}5 & End-to-end ML pipeline & Airflow, dbt, MLflow, cloud storage & 4--5 \\
+6 & Recommendation system & Collaborative filtering, embeddings, deployment & 3--5 \\
+\bottomrule
+\end{tabularx}
+
+% ============================================================
+%  FINAL TIPS
+% ============================================================
+\section{Final Tips for Success}
+
+\begin{enumerate}[leftmargin=*, label=\textbf{\arabic*.}]
+  \item \textbf{Learn by doing.} For every concept, write code immediately. Passive reading is ineffective.
+  \item \textbf{Use Kaggle.} It offers datasets, notebooks, competitions, and a community — all free.
+  \item \textbf{Build in public.} Push everything to GitHub. Write about your projects on LinkedIn or a blog.
+  \item \textbf{Don't skip statistics.} It differentiates good data scientists from people who just run models.
+  \item \textbf{Master one cloud platform.} Deep expertise in one (e.g., AWS) is worth more than surface knowledge of all three.
+  \item \textbf{Join communities.} Kaggle forums, Reddit r/datascience, Hugging Face Discord, local meetups.
+  \item \textbf{Stay consistent.} 1.5--2 hours daily beats 10-hour weekend marathons. Spaced repetition works.
+  \item \textbf{Review and revise.} Revisit earlier topics after completing later phases — concepts will click better.
+\end{enumerate}
+
+\vspace{1cm}
+\begin{center}
+\textcolor{darkgray}{\small\textit{``The best data scientists are not just model builders — they are curious problem solvers who communicate clearly.''}}
+\end{center}
+
+\end{document}
