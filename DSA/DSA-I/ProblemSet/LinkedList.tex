@@ -1,0 +1,373 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning}
+
+% Colors
+\definecolor{boxbg}{RGB}{245, 247, 250}
+\definecolor{accent}{RGB}{30, 80, 160}
+\definecolor{ioboxbg}{RGB}{235, 245, 235}
+
+% Listings style for I/O
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{ioboxbg},
+  frame=single,
+  framerule=0pt,
+  xleftmargin=10pt,
+  xrightmargin=10pt,
+  aboveskip=6pt,
+  belowskip=6pt
+}
+
+% Problem box
+\newmdenv[
+  backgroundcolor=boxbg,
+  linecolor=accent,
+  linewidth=1.5pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  skipabove=10pt,
+  skipbelow=6pt
+]{problembox}
+
+% Header/footer for pages 2+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small\textcolor{accent}{\textbf{Linked List Problem Set}}}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[R]{}
+
+% ---------------------------------------------------------------
+\begin{document}
+
+% ============================================================
+%  FRONT PAGE
+% ============================================================
+\thispagestyle{empty}
+
+\vspace*{3cm}
+\begin{center}
+  {\LARGE \textbf{Linked List Problem Set}}\\[0.5em]
+  {\large Singular Linked Lists --- Beginner Level}\\[0.3em]
+  {\small Lab Exam Preparation}
+\end{center}
+
+\vspace{1.5cm}
+
+\begin{center}
+\begin{tabular}{ll}
+  \textbf{Problem 1}  & Print all elements of a linked list \\[4pt]
+  \textbf{Problem 2}  & Count the number of nodes \\[4pt]
+  \textbf{Problem 3}  & Find the maximum value in a linked list \\[4pt]
+  \textbf{Problem 4}  & Search for a value in a linked list \\[4pt]
+  \textbf{Problem 5}  & Reverse a linked list \\[4pt]
+  \textbf{Problem 6}  & Delete a node by value \\[4pt]
+  \textbf{Problem 7}  & Find the middle node \\[4pt]
+  \textbf{Problem 8}  & Remove all duplicates from a sorted list \\[4pt]
+  \textbf{Problem 9}  & Detect a cycle in a linked list \\[4pt]
+  \textbf{Problem 10} & Merge two sorted linked lists \\
+\end{tabular}
+\end{center}
+
+\vfill
+
+\begin{flushright}
+  \small Nafiul Islam\\
+  \small ID: 0152410070
+\end{flushright}
+
+\newpage
+
+% ============================================================
+%  PROBLEMS
+% ============================================================
+
+% ---- Problem 1 ----
+\section*{Problem 1: Print All Elements}
+
+\begin{problembox}
+You are given a singly linked list. Write a program to print each element of the list on a new line, starting from the head node and going to the last node.
+\end{problembox}
+
+\textbf{Concept:} Basic traversal --- visit every node by following \texttt{next} pointers until \texttt{NULL}.
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 10 -> 20 -> 30 -> 40 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+10
+20
+30
+40
+\end{lstlisting}
+
+\textbf{Hint:} Start from \texttt{head}. While the current node is not \texttt{NULL}, print its data and move to \texttt{node->next}.
+
+\hrulefill
+
+% ---- Problem 2 ----
+\section*{Problem 2: Count the Number of Nodes}
+
+\begin{problembox}
+Given a singly linked list, write a function that returns the total number of nodes present in the list.
+\end{problembox}
+
+\textbf{Concept:} Traversal with a counter variable.
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 5 -> 15 -> 25 -> 35 -> 45 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Total nodes: 5
+\end{lstlisting}
+
+\textbf{Hint:} Use an integer counter starting at 0. Increment it every time you visit a node.
+
+\hrulefill
+
+% ---- Problem 3 ----
+\section*{Problem 3: Find the Maximum Value}
+
+\begin{problembox}
+Given a singly linked list of integers, find and print the largest value stored in the list.
+\end{problembox}
+
+\textbf{Concept:} Traversal while tracking a \texttt{max} variable.
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 7 -> 3 -> 19 -> 2 -> 11 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Maximum value: 19
+\end{lstlisting}
+
+\textbf{Hint:} Initialize \texttt{max} with the head's data. Compare every node's data with \texttt{max} and update if larger.
+
+\newpage
+
+% ---- Problem 4 ----
+\section*{Problem 4: Search for a Value}
+
+\begin{problembox}
+Write a function to search for a given integer \texttt{key} in a singly linked list. Print \texttt{Found at position X} (1-indexed) if it exists, otherwise print \texttt{Not Found}.
+\end{problembox}
+
+\textbf{Concept:} Linear search through a linked list.
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 4 -> 8 -> 12 -> 16 -> 20 -> NULL
+Key: 12
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Found at position 3
+\end{lstlisting}
+
+\textbf{Sample Input 2:}
+\begin{lstlisting}
+Key: 99
+\end{lstlisting}
+\textbf{Sample Output 2:}
+\begin{lstlisting}
+Not Found
+\end{lstlisting}
+
+\textbf{Hint:} Keep a position counter as you traverse. When \texttt{node->data == key}, print the position.
+
+\hrulefill
+
+% ---- Problem 5 ----
+\section*{Problem 5: Reverse a Linked List}
+
+\begin{problembox}
+Given a singly linked list, reverse it in place and print the resulting list. You must change the \texttt{next} pointers --- do not just print backwards.
+\end{problembox}
+
+\textbf{Concept:} Three-pointer reversal (\texttt{prev}, \texttt{curr}, \texttt{next}).
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 1 -> 2 -> 3 -> 4 -> 5 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Reversed: 5 -> 4 -> 3 -> 2 -> 1 -> NULL
+\end{lstlisting}
+
+\textbf{Hint:} At each step, save \texttt{curr->next}, then set \texttt{curr->next = prev}, advance both pointers. The new head is the last non-null \texttt{curr}.
+
+\hrulefill
+
+% ---- Problem 6 ----
+\section*{Problem 6: Delete a Node by Value}
+
+\begin{problembox}
+Given a singly linked list and an integer \texttt{key}, delete the \textbf{first} node that contains \texttt{key} and print the updated list. If the key is not present, print \texttt{Key not found}.
+\end{problembox}
+
+\textbf{Concept:} Pointer manipulation to unlink a node.
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 10 -> 20 -> 30 -> 40 -> NULL
+Key: 20
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Updated list: 10 -> 30 -> 40 -> NULL
+\end{lstlisting}
+
+\textbf{Hint:} Use a \texttt{prev} pointer. When you find the node, set \texttt{prev->next = curr->next}. Handle the special case where the head itself is deleted.
+
+\newpage
+
+% ---- Problem 7 ----
+\section*{Problem 7: Find the Middle Node}
+
+\begin{problembox}
+Given a singly linked list, find and print the value of the middle node. If the list has an even number of nodes, print the value of the \textbf{second} middle node.
+\end{problembox}
+
+\textbf{Concept:} Two-pointer (slow \& fast) technique. The slow pointer moves one step at a time; the fast pointer moves two steps. When fast reaches the end, slow is at the middle.
+
+\textbf{Sample Input 1 (odd length):}
+\begin{lstlisting}
+List: 1 -> 2 -> 3 -> 4 -> 5 -> NULL
+\end{lstlisting}
+\textbf{Sample Output 1:}
+\begin{lstlisting}
+Middle node: 3
+\end{lstlisting}
+
+\textbf{Sample Input 2 (even length):}
+\begin{lstlisting}
+List: 10 -> 20 -> 30 -> 40 -> NULL
+\end{lstlisting}
+\textbf{Sample Output 2:}
+\begin{lstlisting}
+Middle node: 30
+\end{lstlisting}
+
+\textbf{Hint:} Initialize both \texttt{slow = head} and \texttt{fast = head}. Loop while \texttt{fast != NULL \&\& fast->next != NULL}.
+
+\hrulefill
+
+% ---- Problem 8 ----
+\section*{Problem 8: Remove Duplicates from a Sorted List}
+
+\begin{problembox}
+You are given a \textbf{sorted} singly linked list that may contain duplicate values. Remove all duplicate nodes so that each value appears only once, and print the resulting list.
+\end{problembox}
+
+\textbf{Concept:} Traversal with adjacent comparison (works because the list is sorted).
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List: 1 -> 1 -> 2 -> 3 -> 3 -> 3 -> 4 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Updated list: 1 -> 2 -> 3 -> 4 -> NULL
+\end{lstlisting}
+
+\textbf{Hint:} For each node, while \texttt{curr->next != NULL \&\& curr->data == curr->next->data}, skip (delete) the next node.
+
+\hrulefill
+
+% ---- Problem 9 ----
+\section*{Problem 9: Detect a Cycle}
+
+\begin{problembox}
+Given a singly linked list, determine whether it contains a cycle (loop). Print \texttt{Cycle detected} if a loop exists, otherwise print \texttt{No cycle}.
+
+\smallskip
+\textit{Note: A cycle means some node's \texttt{next} pointer points back to a previous node in the list instead of \texttt{NULL}.}
+\end{problembox}
+
+\textbf{Concept:} Floyd's cycle detection algorithm using a slow and a fast pointer.
+
+\textbf{Case 1 (no cycle):}
+\begin{lstlisting}
+List: 1 -> 2 -> 3 -> 4 -> NULL
+Output: No cycle
+\end{lstlisting}
+
+\textbf{Case 2 (cycle exists):}
+\begin{lstlisting}
+List: 1 -> 2 -> 3 -> 4 -> (next points back to node 2)
+Output: Cycle detected
+\end{lstlisting}
+
+\textbf{Hint:} Move \texttt{slow} one step and \texttt{fast} two steps per iteration. If they ever point to the same node, a cycle exists. If \texttt{fast} reaches \texttt{NULL}, there is no cycle.
+
+\newpage
+
+% ---- Problem 10 ----
+\section*{Problem 10: Merge Two Sorted Linked Lists}
+
+\begin{problembox}
+You are given two \textbf{sorted} singly linked lists. Merge them into a single sorted linked list and print the result. Do not create new nodes --- only re-link the existing nodes.
+\end{problembox}
+
+\textbf{Concept:} Two-pointer merge similar to merge sort's merge step.
+
+\textbf{Sample Input:}
+\begin{lstlisting}
+List A: 1 -> 3 -> 5 -> 7 -> NULL
+List B: 2 -> 4 -> 6 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output:}
+\begin{lstlisting}
+Merged: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Input 2:}
+\begin{lstlisting}
+List A: 1 -> 2 -> 4 -> NULL
+List B: 1 -> 3 -> 5 -> NULL
+\end{lstlisting}
+
+\textbf{Sample Output 2:}
+\begin{lstlisting}
+Merged: 1 -> 1 -> 2 -> 3 -> 4 -> 5 -> NULL
+\end{lstlisting}
+
+\textbf{Hint:} Use a dummy head node to simplify pointer management. Compare front nodes of both lists and attach the smaller one. When one list runs out, attach the rest of the other.
+
+\vspace{1.5cm}
+\begin{center}
+  \rule{0.5\textwidth}{0.4pt}\\[0.4em]
+  {\small End of Problem Set}
+\end{center}
+
+\end{document}
+\end{parameter>
