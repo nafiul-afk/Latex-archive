@@ -1,0 +1,1461 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usetheme{Madrid}
+\usefonttheme{professionalfonts}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{ragged2e}
+
+% Palette
+\definecolor{Navy}{HTML}{17324D}
+\definecolor{Blue}{HTML}{2D6A9F}
+\definecolor{PaleBlue}{HTML}{EAF2F8}
+\definecolor{Coral}{HTML}{E76F68}
+\definecolor{PaleCoral}{HTML}{FCEDEC}
+\definecolor{Ink}{HTML}{24313D}
+\definecolor{Muted}{HTML}{5E6B75}
+\definecolor{CodeBG}{HTML}{F4F7FA}
+\definecolor{CodeGreen}{HTML}{26734D}
+\definecolor{CodePurple}{HTML}{7652A3}
+
+\setbeamercolor{structure}{fg=Navy}
+\setbeamercolor{palette primary}{bg=Navy,fg=white}
+\setbeamercolor{palette secondary}{bg=Blue,fg=white}
+\setbeamercolor{palette tertiary}{bg=Navy!88!black,fg=white}
+\setbeamercolor{palette quaternary}{bg=Coral,fg=white}
+\setbeamercolor{title}{fg=Navy}
+\setbeamercolor{frametitle}{fg=Navy,bg=PaleBlue}
+\setbeamercolor{block title}{fg=white,bg=Navy}
+\setbeamercolor{block body}{fg=Ink,bg=PaleBlue}
+\setbeamercolor{alerted text}{fg=Coral}
+\setbeamercolor{item projected}{bg=Coral,fg=white}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{caption name}{fg=Navy}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.78\paperwidth,ht=2.6ex,dp=1.1ex,leftskip=1em]{author in head/foot}%
+    \color{Muted}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.22\paperwidth,ht=2.6ex,dp=1.1ex,rightskip=1em plus1fil]{date in head/foot}%
+    \color{Muted}\insertframenumber{} / \inserttotalframenumber
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\setbeamertemplate{frametitle}{
+  \nointerlineskip
+  \begin{beamercolorbox}[wd=\paperwidth,ht=3.1ex,dp=1.1ex,leftskip=0.8em,rightskip=0.5em]{frametitle}
+    \usebeamerfont{frametitle}\insertframetitle
+  \end{beamercolorbox}
+  \vspace{0.15em}
+}
+\setbeamersize{text margin left=7mm,text margin right=7mm}
+
+\lstdefinestyle{python}{
+  language=Python,
+  backgroundcolor=\color{CodeBG},
+  basicstyle=\ttfamily\scriptsize\color{Ink},
+  keywordstyle=\color{Blue}\bfseries,
+  stringstyle=\color{CodeGreen},
+  commentstyle=\color{Muted}\itshape,
+  numberstyle=\tiny\color{Muted},
+  numbers=none,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=true,
+  frame=single,
+  rulecolor=\color{PaleBlue},
+  frameround=tttt,
+  tabsize=4,
+  keepspaces=true,
+  columns=fullflexible,
+  xleftmargin=3pt,
+  xrightmargin=3pt,
+  aboveskip=4pt,
+  belowskip=4pt
+}
+\lstset{style=python}
+
+\newcommand{\scenario}[1]{\begin{block}{Real-world scenario}#1\end{block}}
+\newcommand{\whenuse}[1]{\textcolor{CodeGreen}{\textbf{When to use:}} #1}
+\newcommand{\pitfall}[1]{\begin{alertblock}{Watch out}#1\end{alertblock}}
+\newcommand{\method}[1]{\texttt{\textcolor{Blue}{#1}}}
+
+\title[Pandas: Beginner to Advanced]{Python pandas\\Beginner to Advanced}
+\subtitle{A practical, scenario-based guide to cleaning, exploring, transforming, and analyzing data}
+\author{Nafiul Islam}
+\institute{BSDS \\ United International University}
+\date{\today}
+
+\begin{document}
+
+% 1
+\begin{frame}[plain,fragile]
+  \titlepage
+  \vspace{-0.6em}
+  \begin{center}
+    \small\textcolor{Muted}{Learn the tools. Understand the choices. Solve real data problems.}
+  \end{center}
+\end{frame}
+
+% 2
+\begin{frame}[fragile]{How to use this course}
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\begin{block}{Learning path}
+\begin{enumerate}
+\item Understand tables and pandas objects
+\item Load, inspect, and select data
+\item Clean unreliable data
+\item Analyze and summarize patterns
+\item Combine and reshape datasets
+\item Work with dates, text, and categories
+\item Build reliable, efficient workflows
+\end{enumerate}
+\end{block}
+\column{0.49\textwidth}
+\begin{block}{How each example works}
+\begin{itemize}
+\item \textbf{Scenario:} a real problem
+\item \textbf{Code:} a small working pattern
+\item \textbf{Meaning:} what the code does
+\item \textbf{Choice:} when to use it
+\item \textbf{Caution:} common mistakes
+\end{itemize}
+\end{block}
+\end{columns}
+\small This is a broad learning deck, not a replacement for the API reference. Use the official documentation links near the end when you need every parameter or edge case.
+\end{frame}
+
+% 3
+\begin{frame}[fragile]{What is pandas?}
+\begin{itemize}
+\item \textbf{pandas} is a Python library for working with structured data: tables, columns, dates, and labels.
+\item It is useful when data comes from spreadsheets, CSV files, databases, APIs, or experiments.
+\item It helps you inspect, clean, filter, combine, summarize, and reshape data.
+\item It works especially well with NumPy and can plot through Matplotlib.
+\end{itemize}
+\scenario{A school has 2,000 student records. You want to find average marks, missing phone numbers, and the highest-scoring class without manually editing a spreadsheet.}
+\begin{lstlisting}
+import pandas as pd
+\end{lstlisting}
+\whenuse{Use pandas when your problem involves rows and columns. It is not a replacement for every database or distributed big-data system.}
+\end{frame}
+
+% 4
+\begin{frame}[fragile]{Install pandas and start a project}
+\begin{lstlisting}
+# In a terminal
+python -m pip install pandas
+
+# Optional tools for charts and notebooks
+python -m pip install matplotlib jupyter openpyxl
+
+# In Python
+import pandas as pd
+print(pd.__version__)
+\end{lstlisting}
+\begin{block}{Why use \texttt{pd}?}
+\texttt{pd} is the common short alias for pandas. It keeps code shorter and is widely recognized by Python developers.
+\end{block}
+\pitfall{Install packages in the same Python environment that runs your notebook or script. If \texttt{import pandas} fails, check the active environment first.}
+\end{frame}
+
+% 5
+\begin{frame}[fragile]{The two main pandas data structures}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{Series}
+A single labeled column.
+\begin{lstlisting}
+marks = pd.Series(
+    [78, 91, 84],
+    index=["Ava", "Rafi", "Mina"],
+    name="marks"
+)
+\end{lstlisting}
+Think: one spreadsheet column with labels.
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{DataFrame}
+A table made of rows and columns.
+\begin{lstlisting}
+students = pd.DataFrame({
+    "name": ["Ava", "Rafi", "Mina"],
+    "marks": [78, 91, 84]
+})
+\end{lstlisting}
+Think: a full spreadsheet or database table.
+\end{block}
+\end{columns}
+\scenario{Use a Series for one measure such as daily temperature. Use a DataFrame for a weather table containing date, city, temperature, and rainfall.}
+\end{frame}
+
+% 6
+\begin{frame}[fragile]{Create a small practice dataset}
+\begin{lstlisting}
+sales = pd.DataFrame({
+    "order_id": [101, 102, 103, 104, 105, 106],
+    "city": ["Dhaka", "Sylhet", "Dhaka", "Khulna", "Sylhet", "Dhaka"],
+    "product": ["Pen", "Book", "Bag", "Pen", "Bag", "Book"],
+    "units": [3, 2, 1, 5, 2, 4],
+    "price": [20, 150, 800, 20, 800, 150],
+    "discount": [0, 10, 50, 0, 0, 15]
+})
+sales["revenue"] = sales["units"] * sales["price"] - sales["discount"]
+\end{lstlisting}
+\begin{itemize}
+\item Each row represents one order.
+\item Each column describes one feature of the order.
+\item The \texttt{revenue} column is calculated from existing columns.
+\end{itemize}
+\scenario{We will reuse this fictional store dataset to learn methods in a connected, realistic workflow.}
+\end{frame}
+
+% 7
+\begin{frame}[fragile]{Read a table before changing it}
+\begin{lstlisting}
+sales.head()       # first 5 rows
+sales.head(10)     # first 10 rows
+sales.tail(3)      # last 3 rows
+sales.sample(3)    # 3 random rows
+sales.shape        # (rows, columns)
+sales.columns      # column labels
+sales.index        # row labels
+sales.dtypes       # each column's data type
+\end{lstlisting}
+\begin{block}{Which one should I use?}
+\begin{itemize}
+\item \method{head()} / \method{tail()}: quick visual checks.
+\item \method{shape}: size of the dataset.
+\item \method{dtypes}: find numbers stored as text or dates stored as strings.
+\item \method{sample()}: inspect varied rows rather than only the beginning.
+\end{itemize}
+\end{block}
+\end{frame}
+
+% 8
+\begin{frame}[fragile]{Inspect quality and get a quick summary}
+\begin{lstlisting}
+sales.info()
+sales.describe()                 # numeric columns by default
+sales.describe(include="all")    # broader summary
+sales["city"].value_counts()
+sales["city"].nunique()
+sales.isna().sum()
+\end{lstlisting}
+\scenario{A downloaded sales file has 80,000 rows. Before analysis, you need to know whether the price column is numeric, how many cities appear, and whether any fields are missing.}
+\whenuse{Start every unfamiliar dataset with \method{head()}, \method{info()}, \method{describe()}, and missing-value counts.}
+\pitfall{\method{describe()} is a summary, not proof that the data is correct. Impossible values can still have valid data types.}
+\end{frame}
+
+% 9
+\begin{frame}[fragile]{Load data from common file formats}
+\begin{lstlisting}
+df = pd.read_csv("orders.csv")
+df = pd.read_csv("orders.csv", sep=";")
+df = pd.read_excel("orders.xlsx", sheet_name="Orders")
+df = pd.read_json("orders.json")
+df = pd.read_parquet("orders.parquet")
+
+df.to_csv("clean_orders.csv", index=False)
+df.to_excel("clean_orders.xlsx", index=False)
+df.to_json("clean_orders.json", orient="records")
+df.to_parquet("clean_orders.parquet", index=False)
+\end{lstlisting}
+\begin{itemize}
+\item \method{read\_...()} loads data; \method{to\_...()} writes data.
+\item CSV is simple and widely supported; Parquet is often more efficient for analytical workflows.
+\item Excel support may require an optional engine such as \texttt{openpyxl}.
+\end{itemize}
+\pitfall{Do not overwrite the only copy of raw data. Keep a raw file and save cleaned output separately.}
+\end{frame}
+
+% 10
+\begin{frame}[fragile]{Control how data is imported}
+\begin{lstlisting}
+df = pd.read_csv(
+    "orders.csv",
+    usecols=["order_id", "city", "price"],
+    nrows=1000,
+    dtype={"order_id": "string"},
+    na_values=["", "N/A", "unknown"]
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{usecols}: load only needed columns.
+\item \method{nrows}: read a small sample while testing.
+\item \method{dtype}: request a column type, when appropriate.
+\item \method{na\_values}: tell pandas which tokens mean missing data.
+\end{itemize}
+\scenario{A large transaction file contains 60 columns, but your first task only needs order ID, city, and price. Loading fewer columns can save memory and time.}
+\end{frame}
+
+% 11
+\begin{frame}[fragile]{Series and DataFrame: useful properties}
+\begin{lstlisting}
+sales.shape
+sales.size
+sales.ndim
+sales.empty
+sales.memory_usage(deep=True)
+sales["price"].name
+sales["price"].dtype
+sales["price"].index
+\end{lstlisting}
+\begin{block}{Remember}
+\begin{itemize}
+\item \method{shape} returns rows and columns.
+\item \method{size} counts cells.
+\item \method{ndim} gives number of dimensions.
+\item \method{memory\_usage()} helps investigate memory use.
+\end{itemize}
+\end{block}
+\whenuse{Use these properties for quick diagnostics and for checking that a transformation produced the expected table size.}
+\end{frame}
+
+% 12
+\begin{frame}[fragile]{Select one column or several columns}
+\begin{lstlisting}
+sales["city"]                         # Series
+sales[["city", "product"]]            # DataFrame
+sales.loc[:, ["order_id", "revenue"]] # all rows, chosen columns
+\end{lstlisting}
+\begin{itemize}
+\item One pair of brackets with a column name normally returns a Series.
+\item A list of column names returns a DataFrame.
+\item Use explicit brackets rather than relying on \texttt{sales.city}; attribute access can conflict with method names or unusual column labels.
+\end{itemize}
+\scenario{A manager only needs city and revenue for a quick report. Select those columns rather than carrying every field into the next step.}
+\end{frame}
+
+% 13
+\begin{frame}[fragile]{Select rows with \texttt{loc} and \texttt{iloc}}
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\begin{block}{\texttt{loc}: by label}
+\begin{lstlisting}
+sales.loc[0]
+sales.loc[0:2, ["city", "price"]]
+\end{lstlisting}
+Use labels from the index. Label slices include the end label when present.
+\end{block}
+\column{0.49\textwidth}
+\begin{block}{\texttt{iloc}: by position}
+\begin{lstlisting}
+sales.iloc[0]
+sales.iloc[0:3, 1:4]
+\end{lstlisting}
+Use integer positions. Standard Python-style slices exclude the stop position.
+\end{block}
+\end{columns}
+\pitfall{The index label is not always the row's current position. After sorting or filtering, label 10 may not be the eleventh row.}
+\end{frame}
+
+% 14
+\begin{frame}[fragile]{Filter rows with conditions}
+\begin{lstlisting}
+sales[sales["city"] == "Dhaka"]
+sales[sales["price"] > 100]
+sales[(sales["city"] == "Dhaka") & (sales["units"] >= 2)]
+sales[(sales["product"] == "Bag") | (sales["price"] < 100)]
+sales[~(sales["city"] == "Sylhet")]
+\end{lstlisting}
+\begin{itemize}
+\item \texttt{\&} means AND; \texttt{|} means OR; \texttt{\~{}} means NOT.
+\item Put each condition in parentheses.
+\item Use \texttt{==} to compare; a single \texttt{=} assigns a value in Python.
+\end{itemize}
+\scenario{A shop manager wants all Dhaka orders with at least two units to plan local delivery.}
+\end{frame}
+
+% 15
+\begin{frame}[fragile]{More useful selection patterns}
+\begin{lstlisting}
+sales[sales["city"].isin(["Dhaka", "Sylhet"])]
+sales[sales["price"].between(100, 500)]
+sales.query("units >= 2 and price < 200")
+sales.nlargest(3, "revenue")
+sales.nsmallest(2, "price")
+sales.sample(n=2, random_state=7)
+\end{lstlisting}
+\begin{itemize}
+\item \method{isin}: match any item from a list.
+\item \method{between}: test a numeric range.
+\item \method{query}: express readable conditions as a string.
+\item \method{nlargest}/\method{nsmallest}: retrieve top or bottom rows by a column.
+\end{itemize}
+\scenario{Find low-cost products for a promotion, or the three orders with the highest revenue.}
+\pitfall{\method{query()} is convenient for simple expressions, but normal boolean indexing is more flexible for complex logic.}
+\end{frame}
+
+% 16
+\begin{frame}[fragile]{Sort rows and control the index}
+\begin{lstlisting}
+sales.sort_values("revenue")
+sales.sort_values("revenue", ascending=False)
+sales.sort_values(["city", "revenue"], ascending=[True, False])
+sales.sort_index()
+sales.reset_index(drop=True)
+sales.set_index("order_id")
+\end{lstlisting}
+\begin{itemize}
+\item \method{sort\_values}: sort by column values.
+\item \method{sort\_index}: sort by row or column labels.
+\item \method{set\_index}: make a column the row label.
+\item \method{reset\_index}: return to a simple numbered index.
+\end{itemize}
+\scenario{Rank each city's orders by revenue, or use order ID as a meaningful lookup label.}
+\end{frame}
+
+% 17
+\begin{frame}[fragile]{Create, change, and remove columns}
+\begin{lstlisting}
+sales["gross"] = sales["units"] * sales["price"]
+sales["is_large_order"] = sales["units"] >= 4
+sales = sales.assign(
+    average_unit_price=sales["revenue"] / sales["units"]
+)
+sales = sales.rename(columns={"city": "customer_city"})
+sales = sales.drop(columns=["discount"])
+\end{lstlisting}
+\begin{itemize}
+\item Assignment creates or replaces a column.
+\item \method{assign()} can make a readable chain of transformations.
+\item \method{rename()} changes labels.
+\item \method{drop()} removes rows or columns; state \texttt{columns=} to be explicit.
+\end{itemize}
+\pitfall{Check your business definition before calculating a metric. In real sales data, tax, shipping, refunds, and discount rules may affect revenue.}
+\end{frame}
+
+% 18
+\begin{frame}[fragile]{Vectorized calculations: avoid unnecessary loops}
+\begin{lstlisting}
+# Recommended: calculate an entire column at once
+sales["gross"] = sales["units"] * sales["price"]
+sales["discount_rate"] = sales["discount"] / (
+    sales["units"] * sales["price"]
+)
+
+# Usually slower and harder to maintain:
+# loop through every row and calculate one by one
+\end{lstlisting}
+\begin{block}{What does vectorized mean?}
+You describe an operation on a whole Series or column. pandas and its underlying libraries handle the element-by-element work efficiently.
+\end{block}
+\scenario{Calculate total cost for 500,000 shopping-cart rows without writing a Python loop for every row.}
+\pitfall{Vectorization does not mean every expression is magically fast. Avoid creating many huge temporary columns and benchmark important workloads.}
+\end{frame}
+
+% 19
+\begin{frame}[fragile]{Missing values: find them first}
+\begin{lstlisting}
+sales.isna()
+sales.isna().sum()
+sales.notna()
+sales["price"].isna()
+sales.dropna()
+sales.dropna(subset=["price"])
+\end{lstlisting}
+\begin{itemize}
+\item Missing values may appear as \texttt{NaN}, \texttt{None}, or pandas' \texttt{NA}, depending on type and source.
+\item \method{isna()} marks missing cells; \method{notna()} marks present cells.
+\item \method{dropna()} removes rows or columns according to its settings.
+\end{itemize}
+\scenario{A price is missing from 12 product records. Find those records before deciding whether to correct, remove, or keep them.}
+\pitfall{Missing does not always mean zero. A missing age, a missing price, and a missing survey answer have different meanings.}
+\end{frame}
+
+% 20
+\begin{frame}[fragile]{Fill missing values thoughtfully}
+\begin{lstlisting}
+sales["discount"] = sales["discount"].fillna(0)
+sales["price"] = sales["price"].fillna(
+    sales["price"].median()
+)
+sales["city"] = sales["city"].fillna("Unknown")
+
+# Forward/backward fill: useful for ordered measurements
+weather["temperature"] = weather["temperature"].ffill()
+weather["temperature"] = weather["temperature"].bfill()
+\end{lstlisting}
+\begin{itemize}
+\item \method{fillna(0)} only when zero is the real meaning.
+\item Median is less affected by extreme values than mean.
+\item \method{ffill()} carries the previous valid value forward; \method{bfill()} uses the next valid value.
+\end{itemize}
+\pitfall{For time series, sort by time first. Never fill using future information if you are simulating a real-time prediction.}
+\end{frame}
+
+% 21
+\begin{frame}[fragile]{Data types and safe conversion}
+\begin{lstlisting}
+df.dtypes
+df["price"] = pd.to_numeric(df["price"], errors="coerce")
+df["order_date"] = pd.to_datetime(df["order_date"], errors="coerce")
+df["customer_id"] = df["customer_id"].astype("string")
+df["units"] = df["units"].astype("Int64")
+\end{lstlisting}
+\begin{itemize}
+\item \method{to\_numeric}: parse numeric values; \texttt{coerce} turns invalid entries into missing values.
+\item \method{to\_datetime}: parse dates and times.
+\item \method{astype}: convert to a requested dtype when the data supports it.
+\item Nullable \texttt{Int64} can store integers and missing values together.
+\end{itemize}
+\scenario{A CSV has prices like \texttt{"250"} and \texttt{"unknown"}. Convert to numbers, then investigate the rows that became missing.}
+\end{frame}
+
+% 22
+\begin{frame}[fragile]{Text cleaning with the \texttt{str} accessor}
+\begin{lstlisting}
+customers["name"] = customers["name"].str.strip()
+customers["city"] = customers["city"].str.title()
+customers["email"] = customers["email"].str.lower()
+customers["phone"] = customers["phone"].str.replace(" ", "", regex=False)
+
+customers["has_gmail"] = customers["email"].str.contains(
+    "@gmail.com", na=False, regex=False
+)
+customers["domain"] = customers["email"].str.split("@").str[-1]
+\end{lstlisting}
+\begin{itemize}
+\item \method{str.strip}: remove leading/trailing spaces.
+\item \method{str.lower}/\method{str.upper}/\method{str.title}: normalize letter case.
+\item \method{str.replace}: replace text.
+\item \method{str.contains}: test whether a pattern occurs.
+\item \method{str.split}: split text into pieces.
+\end{itemize}
+\scenario{The same city arrives as \texttt{"dhaka"}, \texttt{"Dhaka "}, and \texttt{"DHAKA"}. Normalize it before counting customers by city.}
+\end{frame}
+
+% 23
+\begin{frame}[fragile]{Extract patterns and validate text}
+\begin{lstlisting}
+orders["order_code"].str.startswith("BD-")
+orders["email"].str.endswith(".com", na=False)
+orders["code_digits"] = orders["order_code"].str.extract(r"(\d+)")
+orders["clean_code"] = orders["order_code"].str.replace(
+    r"[^A-Za-z0-9-]", "", regex=True
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{startswith}/\method{endswith}: check the beginning or end.
+\item \method{extract}: capture part of a string with a regular expression.
+\item Regex is a compact language for describing text patterns.
+\end{itemize}
+\scenario{An inventory code such as \texttt{ITEM-00482} contains a numeric product identifier that must be extracted for matching.}
+\pitfall{A pattern match is not the same as full validation. For emails, IDs, or phone numbers, define the actual rules your organization requires.}
+\end{frame}
+
+% 24
+\begin{frame}[fragile]{Replace values and standardize categories}
+\begin{lstlisting}
+df["status"] = df["status"].replace({
+    "complete": "Completed",
+    "done": "Completed",
+    "pending ": "Pending"
+})
+df["rating"] = df["rating"].replace({-1: pd.NA})
+df["status"] = df["status"].str.strip().str.title()
+\end{lstlisting}
+\begin{itemize}
+\item \method{replace()} changes exact values or matching patterns.
+\item \method{str.strip()} removes accidental spaces.
+\item Standardize spelling before grouping or joining.
+\end{itemize}
+\scenario{A delivery dataset uses \texttt{"done"}, \texttt{"complete"}, and \texttt{"Completed"} for the same outcome. Standardize these labels before calculating delivery rates.}
+\end{frame}
+
+% 25
+\begin{frame}[fragile]{Duplicates: detect before deleting}
+\begin{lstlisting}
+df.duplicated()
+df.duplicated().sum()
+df[df.duplicated(subset=["email"], keep=False)]
+df = df.drop_duplicates()
+df = df.drop_duplicates(subset=["email"], keep="last")
+\end{lstlisting}
+\begin{itemize}
+\item \method{duplicated()} marks rows that repeat earlier rows under the selected rule.
+\item \method{drop\_duplicates()} keeps one row from each duplicate group.
+\item \texttt{keep="first"}, \texttt{"last"}, or \texttt{False} control which rows remain.
+\end{itemize}
+\scenario{A customer import contains the same email twice. Inspect timestamps and source records before deciding which version to keep.}
+\pitfall{Two identical purchases may be real separate purchases. Do not delete duplicates without understanding what makes a record unique.}
+\end{frame}
+
+% 26
+\begin{frame}[fragile]{Use conditions to label or replace values}
+\begin{lstlisting}
+sales["order_size"] = "Small"
+sales.loc[sales["units"] >= 3, "order_size"] = "Large"
+
+sales["priority"] = sales["revenue"].where(
+    sales["revenue"] >= 300, other=0
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{loc} is a clear way to set values for rows meeting a condition.
+\item \method{where(condition, other)} keeps values where the condition is true and substitutes elsewhere.
+\item For several categories, consider \method{np.select()} or a small, well-tested function.
+\end{itemize}
+\scenario{A warehouse flags orders with at least three units as large so staff can choose a suitable package.}
+\pitfall{Avoid chained assignment such as \texttt{df[df["x"] > 0]["y"] = 1}. Select rows and columns together with \texttt{loc}.}
+\end{frame}
+
+% 27
+\begin{frame}[fragile]{Map values and create categories}
+\begin{lstlisting}
+city_region = {
+    "Dhaka": "Central",
+    "Sylhet": "Northeast",
+    "Khulna": "Southwest"
+}
+sales["region"] = sales["city"].map(city_region)
+
+sales["price_band"] = pd.cut(
+    sales["price"],
+    bins=[0, 50, 200, 1000],
+    labels=["Low", "Medium", "High"],
+    include_lowest=True
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{map}: look up a replacement or related value using a dictionary or function.
+\item \method{cut}: place numeric values into ranges.
+\item Values not present in the mapping may become missing.
+\end{itemize}
+\scenario{Turn a product price into Low, Medium, or High bands for a simple sales dashboard.}
+\end{frame}
+
+% 28
+\begin{frame}[fragile]{Basic statistics: understand the numbers}
+\begin{lstlisting}
+sales["revenue"].sum()
+sales["revenue"].mean()
+sales["revenue"].median()
+sales["revenue"].min()
+sales["revenue"].max()
+sales["revenue"].std()
+sales["revenue"].quantile([0.25, 0.50, 0.75])
+sales["city"].value_counts(normalize=True)
+\end{lstlisting}
+\begin{itemize}
+\item \method{mean}: arithmetic average; can be pulled by extreme values.
+\item \method{median}: middle value after sorting; often useful for skewed prices.
+\item \method{std}: describes spread around the mean.
+\item \method{quantile}: shows cut-off points such as the 25th and 75th percentiles.
+\item \method{value\_counts(normalize=True)} returns proportions instead of raw counts.
+\end{itemize}
+\end{frame}
+
+% 29
+\begin{frame}[fragile]{Count unique values and check distributions}
+\begin{lstlisting}
+sales["city"].count()       # non-missing entries
+sales["city"].nunique()     # distinct non-missing values
+sales["city"].unique()      # distinct values as an array
+sales["city"].value_counts(dropna=False)
+\end{lstlisting}
+\scenario{A survey contains 1,500 responses. You want the number of valid city entries, the number of different cities, and a count for each city including missing entries.}
+\pitfall{\method{count()} is not the same as \method{len(df)}: count on a Series excludes missing values.}
+\end{frame}
+
+% 30
+\begin{frame}[fragile]{GroupBy: split, calculate, combine}
+\begin{lstlisting}
+sales.groupby("city")["revenue"].sum()
+sales.groupby("product")["units"].mean()
+sales.groupby(["city", "product"])["revenue"].sum()
+\end{lstlisting}
+\begin{block}{The three-step idea}
+\begin{enumerate}
+\item \textbf{Split:} create groups such as each city.
+\item \textbf{Apply:} calculate a sum, mean, count, or other measure.
+\item \textbf{Combine:} return a result for each group.
+\end{enumerate}
+\end{block}
+\scenario{A regional manager asks which city generates the most revenue. Group by city and sum revenue, then sort the result.}
+\end{frame}
+
+% 31
+\begin{frame}[fragile]{GroupBy with several summaries}
+\begin{lstlisting}
+summary = sales.groupby("city").agg(
+    order_count=("order_id", "count"),
+    units_sold=("units", "sum"),
+    average_revenue=("revenue", "mean"),
+    top_revenue=("revenue", "max")
+).sort_values("units_sold", ascending=False)
+\end{lstlisting}
+\begin{itemize}
+\item \method{agg()} lets you calculate several statistics in one grouped operation.
+\item Named aggregation gives the output columns clear names.
+\item Sort the result to answer a decision question.
+\end{itemize}
+\scenario{A store owner wants order count, total units, average order revenue, and the largest order for each city in one report.}
+\end{frame}
+
+% 32
+\begin{frame}[fragile]{GroupBy: filter groups or add group context}
+\begin{lstlisting}
+# Keep cities with at least 3 rows in this example
+busy = sales.groupby("city").filter(lambda g: len(g) >= 3)
+
+# Add each city's total revenue to every row in that city
+sales["city_total"] = sales.groupby("city")["revenue"].transform("sum")
+
+# Rank orders inside each city
+sales["rank_in_city"] = sales.groupby("city")["revenue"].rank(
+    method="dense", ascending=False
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{filter}: keep or remove entire groups.
+\item \method{transform}: return values aligned to the original rows.
+\item \method{rank}: rank values, optionally within each group.
+\end{itemize}
+\scenario{You want to compare each order with its city's total without shrinking the dataset to one row per city.}
+\end{frame}
+
+% 33
+\begin{frame}[fragile]{Apply, map, and transform: which one?}
+\begin{description}
+\item[\method{map}] Best for mapping values in a Series, often using a dictionary.
+\item[\method{apply}] Flexible; use when a built-in vectorized operation does not express the task.
+\item[\method{transform}] Useful when group calculations must return a result aligned with the original rows.
+\item[\method{agg}] Best for summary statistics that reduce each group to a result.
+\end{description}
+\begin{lstlisting}
+sales["city_code"] = sales["city"].map({"Dhaka": "DHK"})
+sales.groupby("city")["revenue"].agg(["sum", "mean"])
+sales["city_avg"] = sales.groupby("city")["revenue"].transform("mean")
+\end{lstlisting}
+\pitfall{Do not default to \method{apply()} for everything. Built-in methods are often clearer and faster.}
+\end{frame}
+
+% 34
+\begin{frame}[fragile]{Combine tables: concatenate}
+\begin{lstlisting}
+jan = pd.DataFrame({"order_id": [1, 2], "amount": [100, 200]})
+feb = pd.DataFrame({"order_id": [3, 4], "amount": [150, 250]})
+
+all_orders = pd.concat([jan, feb], ignore_index=True)
+side_by_side = pd.concat([jan, feb], axis=1)
+\end{lstlisting}
+\begin{itemize}
+\item \method{concat(..., axis=0)} stacks tables vertically by default.
+\item \method{concat(..., axis=1)} aligns and places columns side by side.
+\item \texttt{ignore\_index=True} creates a fresh numbered index when stacking rows.
+\end{itemize}
+\scenario{The sales team sends one file per month. Stack the monthly files into one annual table before analyzing trends.}
+\end{frame}
+
+% 35
+\begin{frame}[fragile]{Combine tables: merge like a database JOIN}
+\begin{lstlisting}
+orders = pd.DataFrame({
+    "customer_id": [10, 11, 12],
+    "amount": [500, 250, 700]
+})
+customers = pd.DataFrame({
+    "customer_id": [10, 11, 13],
+    "name": ["Asha", "Rafi", "Mina"]
+})
+
+joined = orders.merge(customers, on="customer_id", how="left")
+\end{lstlisting}
+\begin{itemize}
+\item \texttt{how="inner"}: only matching keys.
+\item \texttt{how="left"}: keep all rows from the left table.
+\item \texttt{how="right"}: keep all rows from the right table.
+\item \texttt{how="outer"}: keep keys from both tables.
+\end{itemize}
+\scenario{Orders contain customer IDs; a separate customer table contains names. Merge them to create a readable order report.}
+\end{frame}
+
+% 36
+\begin{frame}[fragile]{Merge safely: keys, suffixes, and validation}
+\begin{lstlisting}
+result = orders.merge(
+    customers,
+    on="customer_id",
+    how="left",
+    validate="many_to_one",
+    indicator=True
+)
+result["_merge"].value_counts()
+
+# If key column names differ:
+# left.merge(right, left_on="cust_id", right_on="customer_id")
+\end{lstlisting}
+\begin{itemize}
+\item \texttt{validate} checks the expected relationship, such as many orders to one customer.
+\item \texttt{indicator=True} labels rows as left-only, right-only, or matched.
+\item Use \texttt{suffixes=("\_orders", "\_customers")} when both tables share non-key column names.
+\end{itemize}
+\pitfall{A merge can unexpectedly multiply rows if a key appears more than once on both sides. Check key uniqueness and row counts.}
+\end{frame}
+
+% 37
+\begin{frame}[fragile]{Join and ordered merge}
+\begin{lstlisting}
+# Join using index labels
+left = left.set_index("customer_id")
+right = right.set_index("customer_id")
+joined = left.join(right, how="left")
+
+# Match each event to the latest earlier timestamp
+# quotes.merge_asof(trades, on="time", direction="backward")
+\end{lstlisting}
+\begin{itemize}
+\item \method{join()} is convenient for index-based joins.
+\item \method{merge\_asof()} matches nearby ordered values, commonly timestamps.
+\item \method{merge\_ordered()} can help combine ordered data such as time-indexed records.
+\end{itemize}
+\scenario{In market data, match each trade to the most recent quote before that trade. This is an as-of matching problem, not a normal exact-key join.}
+\pitfall{\method{merge\_asof()} requires sorted merge keys. Read the documentation carefully before using it in a financial or scientific workflow.}
+\end{frame}
+
+% 38
+\begin{frame}[fragile]{Reshape: wide versus long data}
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\begin{block}{Wide}
+\begin{tabular}{lrr}
+\toprule
+Student & Math & Science\\
+\midrule
+Ava & 80 & 90\\
+Rafi & 75 & 85\\
+\bottomrule
+\end{tabular}
+\small Each subject gets a separate column.
+\end{block}
+\column{0.49\textwidth}
+\begin{block}{Long}
+\begin{tabular}{llr}
+\toprule
+Student & Subject & Mark\\
+\midrule
+Ava & Math & 80\\
+Ava & Science & 90\\
+Rafi & Math & 75\\
+Rafi & Science & 85\\
+\bottomrule
+\end{tabular}
+\small Subject becomes a value in one column.
+\end{block}
+\end{columns}
+\scenario{Long format is often convenient for plotting and grouped analysis. Wide format can be convenient for reports and spreadsheets.}
+\end{frame}
+
+% 39
+\begin{frame}[fragile]{Reshape with \texttt{melt} and \texttt{pivot}}
+\begin{lstlisting}
+long = marks.melt(
+    id_vars="student",
+    var_name="subject",
+    value_name="mark"
+)
+
+wide = long.pivot(
+    index="student",
+    columns="subject",
+    values="mark"
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{melt()} turns selected columns into rows.
+\item \method{pivot()} spreads unique values into columns.
+\item \method{pivot()} needs each index/column pair to identify one value.
+\end{itemize}
+\pitfall{If duplicate pairs exist, \method{pivot()} raises an error. If you need to combine duplicates, use \method{pivot\_table()} with an aggregation function.}
+\end{frame}
+
+% 40
+\begin{frame}[fragile]{Pivot tables and cross-tabulations}
+\begin{lstlisting}
+pd.pivot_table(
+    sales,
+    values="revenue",
+    index="city",
+    columns="product",
+    aggfunc="sum",
+    fill_value=0,
+    margins=True
+)
+
+pd.crosstab(survey["age_band"], survey["answer"])
+\end{lstlisting}
+\begin{itemize}
+\item \method{pivot\_table()} summarizes data across row and column categories.
+\item \texttt{aggfunc} selects how repeated values are combined.
+\item \method{crosstab()} counts combinations of categories by default.
+\end{itemize}
+\scenario{A store wants a grid showing total revenue for every city-product combination. A school survey wants counts of answers by age band.}
+\end{frame}
+
+% 41
+\begin{frame}[fragile]{Other reshaping tools}
+\begin{lstlisting}
+# Turn each list item into its own row
+items = pd.DataFrame({
+    "order_id": [1, 2],
+    "items": [["pen", "book"], ["bag"]]
+})
+expanded = items.explode("items")
+
+# Convert categories to indicator columns
+encoded = pd.get_dummies(df["payment_type"], prefix="pay")
+
+# Move between hierarchical index levels
+# stacked = wide.stack()
+# wide_again = stacked.unstack()
+\end{lstlisting}
+\begin{itemize}
+\item \method{explode()} expands list-like values into rows.
+\item \method{get\_dummies()} creates 0/1 indicator columns.
+\item \method{stack()} and \method{unstack()} move between index levels and columns.
+\end{itemize}
+\scenario{A single order contains several products in a list. Explode it to analyze product-level demand.}
+\end{frame}
+
+% 42
+\begin{frame}[fragile]{Dates and times: parse them early}
+\begin{lstlisting}
+df["order_date"] = pd.to_datetime(df["order_date"], errors="coerce")
+df["year"] = df["order_date"].dt.year
+df["month"] = df["order_date"].dt.month
+df["weekday"] = df["order_date"].dt.day_name()
+df["is_weekend"] = df["order_date"].dt.dayofweek >= 5
+\end{lstlisting}
+\begin{itemize}
+\item \method{to\_datetime()} converts date-like values into datetime objects.
+\item \method{dt} provides date components and date-related methods for a datetime Series.
+\item Parse dates before sorting, filtering, or grouping by time.
+\end{itemize}
+\scenario{A delivery company wants to compare weekday and weekend order volume.}
+\pitfall{Dates can be ambiguous: \texttt{03/04/2026} may mean March 4 or April 3 depending on the source. Confirm the format.}
+\end{frame}
+
+% 43
+\begin{frame}[fragile]{Time-based filtering and resampling}
+\begin{lstlisting}
+df = df.sort_values("order_date")
+recent = df[df["order_date"] >= "2026-01-01"]
+
+daily = (
+    df.set_index("order_date")
+      .resample("D")["revenue"]
+      .sum()
+)
+monthly = (
+    df.set_index("order_date")
+      .resample("MS")["revenue"]
+      .sum()
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{resample()} groups time-indexed values into intervals such as days or months.
+\item \texttt{D} means daily; \texttt{MS} means month start.
+\item Choose the aggregation that fits the metric: sum revenue, mean temperature, or count events.
+\end{itemize}
+\end{frame}
+
+% 44
+\begin{frame}[fragile]{Rolling, expanding, and shifting}
+\begin{lstlisting}
+df = df.sort_values("date").set_index("date")
+df["7_day_avg"] = df["revenue"].rolling("7D").mean()
+df["running_total"] = df["revenue"].expanding().sum()
+df["previous_day"] = df["revenue"].shift(1)
+df["change"] = df["revenue"].diff()
+df["pct_change"] = df["revenue"].pct_change()
+\end{lstlisting}
+\begin{itemize}
+\item \method{rolling()}: moving window, such as a 7-day average.
+\item \method{expanding()}: calculation over all observations so far.
+\item \method{shift()}: align with a previous or next row.
+\item \method{diff()} and \method{pct\_change()}: absolute and relative changes.
+\end{itemize}
+\scenario{A shop uses a rolling average to smooth daily sales fluctuations and a percentage change to compare performance.}
+\pitfall{A row-based window of 7 observations is not always seven calendar days. Use a time-based window when gaps in dates matter.}
+\end{frame}
+
+% 45
+\begin{frame}[fragile]{Time zones and elapsed time}
+\begin{lstlisting}
+df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+df["local_time"] = df["timestamp"].dt.tz_convert("Asia/Dhaka")
+
+start = pd.to_datetime("2026-01-01")
+end = pd.to_datetime("2026-01-08")
+elapsed = end - start
+\end{lstlisting}
+\begin{itemize}
+\item Time zone handling matters when data crosses regions or daylight-saving changes.
+\item UTC is a useful common reference for storing event timestamps.
+\item A time difference is a \texttt{Timedelta}.
+\end{itemize}
+\scenario{An international support team compares tickets from different time zones. Normalize timestamps before measuring response times.}
+\pitfall{Do not localize a timestamp and convert a timestamp interchangeably. Localization assigns a time zone to a naive clock reading; conversion changes the displayed time zone of an aware timestamp.}
+\end{frame}
+
+% 46
+\begin{frame}[fragile]{Categorical data: when repeated labels dominate}
+\begin{lstlisting}
+df["priority"] = df["priority"].astype(
+    pd.CategoricalDtype(
+        categories=["Low", "Medium", "High"],
+        ordered=True
+    )
+)
+df.sort_values("priority")
+\end{lstlisting}
+\begin{itemize}
+\item A categorical dtype represents values from a known set of labels.
+\item Ordered categories can express a meaningful order such as Low, Medium, High.
+\item Categories may reduce memory use when many values repeat.
+\end{itemize}
+\scenario{A ticketing system needs priorities sorted by business meaning, not alphabetically.}
+\pitfall{Define categories carefully: unexpected labels may become missing during conversion.}
+\end{frame}
+
+% 47
+\begin{frame}[fragile]{Plot directly from pandas}
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+
+sales.groupby("city")["revenue"].sum().plot(
+    kind="bar", title="Revenue by city", ylabel="Revenue"
+)
+plt.tight_layout()
+plt.show()
+
+sales["revenue"].plot(kind="hist", bins=10, title="Order revenue")
+plt.show()
+\end{lstlisting}
+\begin{itemize}
+\item Common kinds: \texttt{line}, \texttt{bar}, \texttt{barh}, \texttt{hist}, \texttt{box}, \texttt{scatter}.
+\item Line charts are useful for ordered time trends; bars compare categories.
+\item Histograms show distributions; box plots help spot spread and possible outliers.
+\end{itemize}
+\scenario{Show a manager which city contributes the most revenue, or whether most orders are small with a few very large ones.}
+\end{frame}
+
+% 48
+\begin{frame}[fragile]{Choose a chart that answers the question}
+\begin{tabular}{p{0.24\textwidth}p{0.32\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{Question} & \textbf{Useful chart} & \textbf{Example}\\
+\midrule
+How does it change over time? & Line & Daily sales over a month\\
+Which category is larger? & Bar & Revenue by city\\
+How are values distributed? & Histogram & Delivery times\\
+Are there unusual values? & Box plot & Product prices\\
+Do two numeric values move together? & Scatter & Ad spend vs sales\\
+\bottomrule
+\end{tabular}
+\begin{block}{A good chart}
+Use a descriptive title, readable labels, appropriate units, and a scale that does not mislead the viewer.
+\end{block}
+\end{frame}
+
+% 49
+\begin{frame}[fragile]{Style a table for a report}
+\begin{lstlisting}
+summary = sales.groupby("city", as_index=False)["revenue"].sum()
+
+styled = (
+    summary.style
+    .format({"revenue": "{:,.2f}"})
+    .highlight_max(subset=["revenue"])
+    .set_caption("Revenue by city")
+)
+\end{lstlisting}
+\begin{itemize}
+\item \method{DataFrame.style} creates a display-oriented Styler object in notebook or HTML workflows.
+\item \method{format()} controls how values appear.
+\item Highlighting can draw attention to important values.
+\end{itemize}
+\pitfall{Styling is for presentation. It does not change the underlying numeric values, and support differs by output format.}
+\end{frame}
+
+% 50
+\begin{frame}[fragile]{Useful comparisons and aligned arithmetic}
+\begin{lstlisting}
+left = pd.Series([10, 20], index=["A", "B"])
+right = pd.Series([3, 7], index=["B", "C"])
+
+left + right
+left.add(right, fill_value=0)
+\end{lstlisting}
+\begin{itemize}
+\item pandas aligns Series and DataFrame values by labels during many operations.
+\item When labels do not match, the result may contain missing values.
+\item Methods such as \method{add()}, \method{sub()}, \method{mul()}, and \method{div()} can accept \texttt{fill\_value}.
+\end{itemize}
+\scenario{Compare two reports whose product rows are in different orders. Labels help pandas match the correct products rather than blindly matching row positions.}
+\end{frame}
+
+% 51
+\begin{frame}[fragile]{Compare datasets and find changes}
+\begin{lstlisting}
+old = pd.DataFrame({"price": [100, 200]}, index=["A", "B"])
+new = pd.DataFrame({"price": [110, 200]}, index=["A", "B"])
+
+old.compare(new)
+old.equals(new)
+\end{lstlisting}
+\begin{itemize}
+\item \method{compare()} highlights differences between similarly shaped objects.
+\item \method{equals()} returns a boolean for exact equality under pandas' comparison rules.
+\item Align rows and columns first if the datasets have different structures.
+\end{itemize}
+\scenario{A team receives a revised inventory file and needs to find which product prices changed before publishing it.}
+\end{frame}
+
+% 52
+\begin{frame}[fragile]{Indexes: labels are powerful, but not magic}
+\begin{lstlisting}
+df.index.is_unique
+df.columns.is_unique
+df = df.set_index("customer_id", verify_integrity=True)
+df = df.reset_index()
+\end{lstlisting}
+\begin{itemize}
+\item An index labels rows and can support selection, alignment, and joins.
+\item Index labels do not have to be consecutive integers.
+\item Duplicate index or column labels can make some operations confusing.
+\item \texttt{verify\_integrity=True} can catch duplicate keys when setting an index.
+\end{itemize}
+\scenario{A customer ID should identify one customer in a customer master table. Verify uniqueness before using it as a lookup index.}
+\end{frame}
+
+% 53
+\begin{frame}[fragile]{MultiIndex: more than one label level}
+\begin{lstlisting}
+grouped = sales.groupby(["city", "product"])["revenue"].sum()
+grouped.loc[("Dhaka", "Pen")]
+
+# Convert index levels back to columns
+flat = grouped.reset_index()
+\end{lstlisting}
+\begin{itemize}
+\item A MultiIndex stores multiple levels of labels on an axis.
+\item It is useful for grouped results, panel-like data, or nested categories.
+\item \method{reset\_index()} makes the levels easier to export or join as ordinary columns.
+\end{itemize}
+\scenario{You want revenue for each city-product pair, not just one summary per city.}
+\end{frame}
+
+% 54
+\begin{frame}[fragile]{Performance: make pandas work smarter}
+\begin{itemize}
+\item Load only the columns and rows needed for the task.
+\item Prefer vectorized operations and built-in aggregations over row-by-row Python loops.
+\item Use suitable dtypes; repeated labels may benefit from categorical storage.
+\item Avoid repeatedly concatenating one row at a time. Collect pieces, then concatenate once.
+\item Check memory use with \method{memory\_usage(deep=True)}.
+\item Measure before optimizing; the slowest-looking line is not always the bottleneck.
+\end{itemize}
+\begin{lstlisting}
+parts = []
+for file in files:
+    parts.append(pd.read_csv(file, usecols=["date", "sales"]))
+combined = pd.concat(parts, ignore_index=True)
+\end{lstlisting}
+\end{frame}
+
+% 55
+\begin{frame}[fragile]{Work with data too large for memory}
+\begin{lstlisting}
+totals = []
+for chunk in pd.read_csv("huge_orders.csv", chunksize=100_000):
+    chunk["revenue"] = chunk["units"] * chunk["price"]
+    totals.append(chunk.groupby("city")["revenue"].sum())
+
+final = pd.concat(totals).groupby(level=0).sum()
+\end{lstlisting}
+\begin{itemize}
+\item \texttt{chunksize} reads a file in manageable pieces.
+\item Summarize each chunk, then combine the partial summaries.
+\item For workflows requiring large joins or complex processing beyond memory, consider a database or a scalable dataframe tool.
+\end{itemize}
+\pitfall{Chunking only works directly when you can process parts independently or combine partial results correctly. Medians and many complex operations need more careful strategies.}
+\end{frame}
+
+% 56
+\begin{frame}[fragile]{Copying, mutation, and chained assignment}
+\begin{lstlisting}
+# Explicitly create a separate working DataFrame
+dhaka_sales = sales.loc[sales["city"] == "Dhaka"].copy()
+dhaka_sales["flag"] = True
+
+# Set selected cells in one operation
+sales.loc[sales["revenue"] > 500, "priority"] = "High"
+\end{lstlisting}
+\begin{itemize}
+\item Make the intended target of an assignment clear.
+\item Avoid chained patterns such as \texttt{df[mask]["col"] = value}.
+\item Modern pandas uses Copy-on-Write behavior; code should not rely on accidental mutation of another object.
+\end{itemize}
+\pitfall{If a transformation must be independent, use \method{copy()} explicitly and keep assignments direct. Consult the Copy-on-Write guide for version-specific behavior.}
+\end{frame}
+
+% 57
+\begin{frame}[fragile]{Options and display settings}
+\begin{lstlisting}
+pd.set_option("display.max_columns", 20)
+pd.set_option("display.max_rows", 30)
+pd.set_option("display.float_format", "{:.2f}".format)
+
+# Temporarily change settings
+with pd.option_context("display.max_columns", 10):
+    print(df)
+\end{lstlisting}
+\begin{itemize}
+\item Display options change how objects are shown, not the actual stored data.
+\item \method{option\_context()} restores previous options when the block ends.
+\item Keep display settings in notebooks or scripts where they improve readability.
+\end{itemize}
+\end{frame}
+
+% 58
+\begin{frame}[fragile]{Common mistakes and their fixes}
+\begin{tabular}{p{0.42\textwidth}p{0.47\textwidth}}
+\toprule
+\textbf{Mistake} & \textbf{Better approach}\\
+\midrule
+Comparing text numbers to numeric thresholds & Convert types and inspect failed conversions\\
+Using \texttt{and}/\texttt{or} between Series & Use \texttt{\&}/\texttt{|} with parentheses\\
+Assuming row position equals index label & Choose \texttt{loc} or \texttt{iloc} deliberately\\
+Filling every missing value with zero & Use domain knowledge to choose a strategy\\
+Merging without checking duplicate keys & Check uniqueness and use \texttt{validate}\\
+Looping through every row for simple math & Prefer vectorized column operations\\
+Deleting every repeated row automatically & Define what makes a record truly duplicate\\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+% 59
+\begin{frame}[fragile]{A complete cleaning workflow}
+\begin{lstlisting}
+df = pd.read_csv("raw_orders.csv")
+
+# 1. Understand the data
+print(df.shape)
+df.info()
+print(df.isna().sum())
+
+# 2. Standardize labels and types
+df.columns = df.columns.str.strip().str.lower()
+df["order_date"] = pd.to_datetime(df["order_date"], errors="coerce")
+df["price"] = pd.to_numeric(df["price"], errors="coerce")
+
+# 3. Resolve known quality issues
+df = df.drop_duplicates(subset=["order_id"])
+df = df.dropna(subset=["order_id", "price"])
+
+# 4. Add a useful measure and save a new file
+df["revenue"] = df["units"] * df["price"]
+df.to_csv("clean_orders.csv", index=False)
+\end{lstlisting}
+\small This is a template, not a universal recipe: the right missing-value and duplicate rules depend on the meaning of the data.
+\end{frame}
+
+% 60
+\begin{frame}[fragile]{A complete analysis workflow}
+\begin{lstlisting}
+df = pd.read_csv("clean_orders.csv")
+df["order_date"] = pd.to_datetime(df["order_date"])
+
+city_report = (
+    df.groupby("city", as_index=False)
+      .agg(
+          orders=("order_id", "nunique"),
+          units=("units", "sum"),
+          revenue=("revenue", "sum")
+      )
+      .sort_values("revenue", ascending=False)
+)
+
+monthly = (
+    df.set_index("order_date")
+      .resample("MS")["revenue"]
+      .sum()
+)
+
+city_report.to_csv("city_report.csv", index=False)
+\end{lstlisting}
+\scenario{This workflow turns raw order data into two useful outputs: a city performance report and a monthly revenue series.}
+\end{frame}
+
+% 61
+\begin{frame}[fragile]{Mini project: student performance analysis}
+\begin{block}{Scenario}
+A school shares a CSV with student ID, class, subject, mark, attendance, and exam date. The head teacher wants a trustworthy summary.
+\end{block}
+\begin{enumerate}
+\item Inspect dimensions, types, duplicates, and missing values.
+\item Convert marks, attendance, and exam dates to correct types.
+\item Check impossible marks and attendance values.
+\item Calculate class average, median, and pass rate.
+\item Compare subjects and plot marks distributions.
+\item Export a summary and document the cleaning decisions.
+\end{enumerate}
+\begin{block}{Practice prompts}
+Which class has the highest average? Which subject has the widest spread? Are absent students represented as missing, zero, or a separate status?
+\end{block}
+\end{frame}
+
+% 62
+\begin{frame}[fragile]{Mini project: public health or environment data}
+\begin{block}{Scenario}
+A dataset contains district, date, reported cases, rainfall, temperature, and source.
+\end{block}
+\begin{itemize}
+\item Parse dates and standardize district names.
+\item Identify missing periods and duplicate reports.
+\item Group by district and month.
+\item Use rolling averages to smooth daily fluctuations.
+\item Merge rainfall data by a well-defined key and date.
+\item Plot trends and clearly label gaps and uncertainty.
+\end{itemize}
+\pitfall{A pattern or correlation does not prove that one variable caused another. Protect personal data and avoid publishing identifying records.}
+\end{frame}
+
+% 63
+\begin{frame}[fragile]{Mini project: e-commerce investigation}
+\begin{block}{Scenario}
+An online shop wants to learn which products and cities contribute to revenue and where customers abandon deliveries.
+\end{block}
+\begin{enumerate}
+\item Clean order status, product names, prices, and timestamps.
+\item Remove only confirmed duplicate records.
+\item Calculate revenue using the business's documented rule.
+\item Merge order lines with product and customer tables.
+\item Group by city, product, month, and delivery status.
+\item Create a pivot table and two or three decision-focused charts.
+\end{enumerate}
+\begin{block}{Deliverable}
+A reproducible notebook, cleaned dataset, summary CSV, charts, and a short explanation of limitations.
+\end{block}
+\end{frame}
+
+% 64
+\begin{frame}[fragile]{Practice challenge: choose the right method}
+\begin{enumerate}
+\item Show only rows where price exceeds 500.
+\item Find the five largest orders by revenue.
+\item Count missing values in each column.
+\item Combine January and February order files.
+\item Add customer names to order records using customer ID.
+\item Calculate total revenue for each city.
+\item Convert daily revenue to monthly revenue.
+\item Turn subject columns into rows for plotting.
+\item Find rows duplicated by email, but keep all copies visible for review.
+\item Add each city's total revenue back to every order.
+\end{enumerate}
+\small Suggested methods: boolean filtering, \texttt{nlargest}, \texttt{isna().sum()}, \texttt{concat}, \texttt{merge}, \texttt{groupby}, \texttt{resample}, \texttt{melt}, \texttt{duplicated(keep=False)}, \texttt{transform}.
+\end{frame}
+
+% 65
+\begin{frame}[fragile]{A practical method-selection guide}
+\begin{tabular}{p{0.32\textwidth}p{0.57\textwidth}}
+\toprule
+\textbf{Need} & \textbf{Start with}\\
+\midrule
+Load a file & \texttt{read\_csv}, \texttt{read\_excel}, \texttt{read\_parquet}\\
+Inspect quality & \texttt{head}, \texttt{info}, \texttt{describe}, \texttt{isna}\\
+Choose rows & Boolean masks, \texttt{loc}, \texttt{query}\\
+Clean text & \texttt{str.strip}, \texttt{str.lower}, \texttt{str.replace}\\
+Summarize groups & \texttt{groupby} + \texttt{agg}\\
+Combine files & \texttt{concat}\\
+Match tables by keys & \texttt{merge}\\
+Change table shape & \texttt{melt}, \texttt{pivot}, \texttt{pivot\_table}\\
+Analyze time & \texttt{to\_datetime}, \texttt{dt}, \texttt{resample}, \texttt{rolling}\\
+Reduce memory/time & select columns, efficient dtypes, chunking, measure first\\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+% 66
+\begin{frame}[fragile]{Official documentation: the source of truth}
+\begin{itemize}
+\item \href{https://pandas.pydata.org/docs/}{\textbf{pandas documentation home}} — current documentation and release links.
+\item \href{https://pandas.pydata.org/docs/getting_started/}{\textbf{Getting started}} — installation, beginner tutorials, and common tasks.
+\item \href{https://pandas.pydata.org/docs/user_guide/}{\textbf{User Guide}} — detailed explanations of core topics.
+\item \href{https://pandas.pydata.org/docs/user_guide/10min.html}{\textbf{10 minutes to pandas}} — a compact overview of fundamentals.
+\item \href{https://pandas.pydata.org/docs/reference/index.html}{\textbf{API reference}} — exact method parameters and return behavior.
+\item \href{https://pandas.pydata.org/docs/user_guide/merging.html}{\textbf{Merge, join, concatenate}} — combining tables.
+\item \href{https://pandas.pydata.org/docs/user_guide/reshaping.html}{\textbf{Reshaping and pivot tables}} — changing table layout.
+\item \href{https://pandas.pydata.org/docs/user_guide/timeseries.html}{\textbf{Time series}} — dates, offsets, resampling, and time zones.
+\end{itemize}
+\small pandas changes over time. Check the documentation for the version installed in your environment, especially for dtype and Copy-on-Write behavior.
+\end{frame}
+
+% 67
+\begin{frame}[fragile]{What does “beginner to advanced” mean?}
+\begin{columns}[T,onlytextwidth]
+\column{0.32\textwidth}
+\begin{block}{Beginner}
+\begin{itemize}
+\item Create/read tables
+\item Inspect columns
+\item Select and filter
+\item Calculate columns
+\item Handle missing values
+\end{itemize}
+\end{block}
+\column{0.32\textwidth}
+\begin{block}{Intermediate}
+\begin{itemize}
+\item Group and aggregate
+\item Clean text and dates
+\item Merge datasets
+\item Reshape tables
+\item Visualize findings
+\end{itemize}
+\end{block}
+\column{0.32\textwidth}
+\begin{block}{Advanced practice}
+\begin{itemize}
+\item Time-series windows
+\item MultiIndex
+\item Memory and chunking
+\item Reliable merge checks
+\item Reproducible workflows
+\end{itemize}
+\end{block}
+\end{columns}
+\begin{center}
+\Large\textcolor{Navy}{The goal is not to memorize every method.}\\
+\large\textcolor{Coral}{The goal is to choose the right method for the real problem.}
+\end{center}
+\end{frame}
+
+% 68
+\begin{frame}[plain,fragile]
+\begin{center}
+\vspace{1.3cm}
+{\Huge\bfseries\textcolor{Navy}{Your data journey starts here}}\\[0.5cm]
+{\Large\textcolor{Blue}{Inspect \(\rightarrow\) Clean \(\rightarrow\) Transform \(\rightarrow\) Analyze \(\rightarrow\) Explain}}\\[1cm]
+\begin{block}{Final advice}
+Practice with real datasets, keep your raw data unchanged, write down assumptions, verify your results, and use the official pandas documentation whenever you need details.
+\end{block}
+\vspace{0.4cm}
+\href{https://pandas.pydata.org/docs/}{pandas.pydata.org/docs}
+\end{center}
+\end{frame}
+
+\end{document}
